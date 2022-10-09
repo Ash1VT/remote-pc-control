@@ -15,6 +15,7 @@ namespace Client
 {
     public partial class Form1 : Form
     {
+        private Client _client = new Client();
         public Form1()
         {
             InitializeComponent();
@@ -22,8 +23,10 @@ namespace Client
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            Client client = new Client();
-            client.Connect("127.0.0.1", 13000);
+            Data.XCoefficient = 1920.0 / pictureBox1.Width;
+            Data.YCoefficient = 1080.0 / pictureBox1.Height;
+
+            _client.Connect("192.168.0.102", 13000);
             
             
             Task task = new Task(
@@ -32,9 +35,9 @@ namespace Client
                     while (true)
                     {
                         Request request = new ScreenRequest();
-                        JObject jObject = request.ToJson();
                         
-                        if (!client.Send(jObject.ToString()))
+                        
+                        if (!_client.Send(request))
                         {
                             break;
                         }
@@ -50,6 +53,15 @@ namespace Client
         private void timer1_Elapsed(object sender, ElapsedEventArgs e)
         {
             pictureBox1.Image = Data.Image;
+        }
+
+        private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
+        {
+       
+            int x = (int)(e.X * Data.XCoefficient);
+            int y = (int)(e.Y * Data.YCoefficient);
+
+            _client.Send(new MouseCoordinatesRequest(x, y));
         }
     }
 }

@@ -1,4 +1,5 @@
 .idea/
+.vs/
 Client/bin/
 Client/obj/
 packages/
