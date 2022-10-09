@@ -1,0 +1,7 @@
+.idea/
+Client/bin/
+Client/obj/
+packages/
+Server/bin/
+Server/obj/
+remote-pc-control.sln.DotSettings.user
