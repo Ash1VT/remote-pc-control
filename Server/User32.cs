@@ -44,5 +44,8 @@ namespace Server
 
         [DllImport("user32.dll")]
         public static extern bool GetIconInfo(IntPtr hIcon, out ICONINFO piconinfo);
+        
+        [DllImport("user32.dll")]
+        public static extern bool SetCursorPos(int X, int Y);
     }
 }

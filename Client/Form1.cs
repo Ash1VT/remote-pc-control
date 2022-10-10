@@ -10,12 +10,17 @@ using System.Timers;
 using System.Windows.Forms;
 using Client.Requests;
 using Newtonsoft.Json.Linq;
+using Task = System.Threading.Tasks.Task;
 
 namespace Client
 {
     public partial class Form1 : Form
     {
+
         private Client _client = new Client();
+        private Client _client1 = new Client();
+        private Client _client2 = new Client();
+
         public Form1()
         {
             InitializeComponent();
@@ -27,6 +32,8 @@ namespace Client
             Data.YCoefficient = 1080.0 / pictureBox1.Height;
 
             _client.Connect("192.168.0.102", 13000);
+            _client1.Connect("192.168.0.102", 13000);
+            _client2.Connect("192.168.0.102", 13000);
             
             
             Task task = new Task(
@@ -47,11 +54,48 @@ namespace Client
             );
             task.Start();
             
+            Task task1 = new Task(
+                () =>
+                {
+                    while (true)
+                    {
+                        Request request = new ScreenRequest();
+                        
+                        
+                        if (!_client1.Send(request))
+                        {
+                            break;
+                        }
+            
+                    }
+                }
+            );
+            task1.Start();
+
+            Task task2 = new Task(
+                () =>
+                {
+                    while (true)
+                    {
+                        Request request = new ScreenRequest();
+                        
+                        
+                        if (!_client2.Send(request))
+                        {
+                            break;
+                        }
+            
+                    }
+                }
+            );
+            task2.Start();
+               
         }
     
 
         private void timer1_Elapsed(object sender, ElapsedEventArgs e)
         {
+            Console.WriteLine("UPDATE");
             pictureBox1.Image = Data.Image;
         }
 

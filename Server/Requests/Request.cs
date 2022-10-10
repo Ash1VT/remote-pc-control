@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using Server.Responses;
 
 namespace Server.Requests
 {
@@ -10,6 +11,8 @@ namespace Server.Requests
         }
         
         public abstract void Execute();
-        
+
+        public abstract Response GetResponse();
+
     }
 }

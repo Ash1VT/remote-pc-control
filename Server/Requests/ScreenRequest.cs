@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using Newtonsoft.Json.Linq;
+using Server.Responses;
 
 namespace Server.Requests
 {
@@ -14,6 +15,11 @@ namespace Server.Requests
         public override void Execute()
         {
             Data.Screen = ScreenMaker.Capture(0, 0, 1920, 1080);
+        }
+
+        public override Response GetResponse()
+        {
+            return new ScreenResponse(Data.Screen);
         }
     }
 }

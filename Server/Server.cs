@@ -7,6 +7,8 @@ using System.Net;
 using System.Net.Mime;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Newtonsoft.Json.Linq;
 using Server.Requests;
@@ -19,8 +21,14 @@ namespace Server
 
         private TcpListener _listener;
         private TcpClient _client;
+        private TcpClient _client1;
+        private TcpClient _client2;
+
 
         private NetworkStream _stream;
+        private NetworkStream _stream1;
+        private NetworkStream _stream2;
+
         
         
         public Server(IPAddress serverAddress, int serverPort)
@@ -38,6 +46,9 @@ namespace Server
         private void AcceptClient()
         {
             _client = _listener.AcceptTcpClient();
+            _client1 = _listener.AcceptTcpClient();
+            _client2 = _listener.AcceptTcpClient();
+
             GetStream();
             Console.WriteLine("USER CONNECTED");
         }
@@ -45,78 +56,126 @@ namespace Server
         private void GetStream()
         {
             _stream = _client.GetStream();
+            _stream1 = _client1.GetStream();
+            _stream2 = _client2.GetStream();
         }
         
-        public static Bitmap Capture(int x, int y, int width, int height)
-        {
-            var bitmap = new Bitmap(width, height, PixelFormat.Format24bppRgb);
-            using (Graphics g = Graphics.FromImage(bitmap))
-            {
-                g.CopyFromScreen(x, y, 0, 0, bitmap.Size, CopyPixelOperation.SourceCopy);
-
-                User32.CURSORINFO cursorInfo;
-                cursorInfo.cbSize = Marshal.SizeOf(typeof(User32.CURSORINFO));
-
-                if (User32.GetCursorInfo(out cursorInfo))
-                {
-                    // if the cursor is showing draw it on the screen shot
-                    if (cursorInfo.flags == User32.CURSOR_SHOWING)
-                    {
-                        var iconPointer = User32.CopyIcon(cursorInfo.hCursor);
-                        User32.ICONINFO iconInfo;
-                        int iconX, iconY;
-
-                        if (User32.GetIconInfo(iconPointer, out iconInfo))
-                        {
-                            iconX = (int)((cursorInfo.ptScreenPos.x - ((int)iconInfo.xHotspot)) * 1.25);
-                            iconY = (int)((cursorInfo.ptScreenPos.y - ((int)iconInfo.yHotspot)) * 1.25);
-                            
-                            User32.DrawIcon(g.GetHdc(), iconX, iconY, cursorInfo.hCursor);
-
-                            g.ReleaseHdc();
-                        }
-                    }
-                }
-            }
-            return bitmap;
-        }
         public void Run()
         {
             AcceptClient();
             
-            while (true)
+            Semaphore sem = new Semaphore(1, 1);
+            
+            new Task(() =>
             {
-                try
+                while (true)
                 {
-                    string data = ReadMessage();
-                    JObject jObject = JObject.Parse(data);
+                    try
+                    {
+                        Byte[] bytes = new Byte[256];
+                        int i = _stream.Read(bytes, 0, bytes.Length);
+                        string data = System.Text.Encoding.Default.GetString(bytes, 0, i);
+                        
+                        JObject jObject = JObject.Parse(data);
 
-                    Request request = new ScreenRequest(jObject);
-                    
-                    request.Execute();
+                        Request request = RequestIdentifier.GetRequest(jObject);
 
-                    Response response = new ScreenResponse(Data.Screen);
+                        sem.WaitOne();
+                        request.Execute();
+                        sem.Release();
+                        Console.WriteLine("STREAM");
+                        Response response = request.GetResponse();
 
-                    
-                    // MemoryStream memoryStream = new MemoryStream();
-                    // {
-                    //     Capture(0,0,1920,1080).Save(memoryStream, System.Drawing.Imaging.ImageFormat.Jpeg);
-                    // }
-                    
-                    string data1 = response.ToJson().ToString();
-                    SendAnswer(data1);
+                        string data1 = response.ToJson().ToString();
+                        
+                        byte[] bytes1 = System.Text.Encoding.Default.GetBytes(data1);
+                        _stream.Write(bytes1, 0, bytes1.Length);
+                        
+                    }
+                    catch (System.IO.IOException e)
+                    {
+                        Console.WriteLine("USER DISCONNECTED");
+                        AcceptClient();
+                    }
                 }
-                catch (System.IO.IOException e)
+            }).Start();
+            
+            new Task(() =>
+            {
+                while (true)
                 {
-                    Console.WriteLine("USER DISCONNECTED");
-                    AcceptClient();
+                    try
+                    {
+                        // string data = ReadMessage();
+                        
+                        Byte[] bytes = new Byte[256];
+                        int i = _stream1.Read(bytes, 0, bytes.Length);
+                        string data = System.Text.Encoding.Default.GetString(bytes, 0, i);
+                        
+                        JObject jObject = JObject.Parse(data);
+            
+                        Request request = RequestIdentifier.GetRequest(jObject);
+                        sem.WaitOne();
+                        request.Execute();
+                        sem.Release();
+
+                        Console.WriteLine("STREAM1");
+                        Response response = request.GetResponse();
+            
+                        string data1 = response.ToJson().ToString();
+                        
+                        byte[] bytes1 = System.Text.Encoding.Default.GetBytes(data1);
+                        _stream1.Write(bytes1, 0, bytes1.Length);
+                    }
+                    catch (System.IO.IOException e)
+                    {
+                        Console.WriteLine("USER DISCONNECTED");
+                        AcceptClient();
+                    }
                 }
-            }
+            }).Start();
+            
+            
+            new Task(() =>
+            {
+                while (true)
+                {
+                    try
+                    {
+                        // string data = ReadMessage();
+                        
+                        Byte[] bytes = new Byte[256];
+                        int i = _stream2.Read(bytes, 0, bytes.Length);
+                        string data = System.Text.Encoding.Default.GetString(bytes, 0, i);
+                        
+                        JObject jObject = JObject.Parse(data);
+            
+                        Request request = RequestIdentifier.GetRequest(jObject);
+                        sem.WaitOne();
+                        request.Execute();
+                        sem.Release();
+
+                        Console.WriteLine("STREAM2");
+
+                        Response response = request.GetResponse();
+            
+                        string data1 = response.ToJson().ToString();
+                        
+                        byte[] bytes1 = System.Text.Encoding.Default.GetBytes(data1);
+                        _stream2.Write(bytes1, 0, bytes1.Length);
+                    }
+                    catch (System.IO.IOException e)
+                    {
+                        Console.WriteLine("USER DISCONNECTED");
+                        AcceptClient();
+                    }
+                }
+            }).Start();
+            
         }
 
         private string ReadMessage()
         {
-            
             Byte[] bytes = new Byte[256];
             int i = _stream.Read(bytes, 0, bytes.Length);
             return System.Text.Encoding.Default.GetString(bytes, 0, i);

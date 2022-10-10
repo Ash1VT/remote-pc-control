@@ -32,7 +32,6 @@ namespace Server
         
         public static void Main(string[] args)
         {
-            
 
             // MemoryStream stream = new MemoryStream();
             // Image image = ScreenMaker.Capture(0,0,1920,1080);
@@ -54,11 +53,14 @@ namespace Server
             // Console.WriteLine(data == data1);
 
 // Print result as JSON
-            Server server = new Server(IPAddress.Parse("127.0.0.1"), 13000);
+            Server server = new Server(IPAddress.Parse("192.168.0.102"), 13000);
             server.Start();
             server.Run();
-            server.Stop();
 
+            while (true)
+            {
+                
+            }
 
 
             // TcpListener listener = new TcpListener(IPAddress.Parse("127.0.0.1"), 13000);

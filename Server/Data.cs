@@ -2,7 +2,7 @@
 
 namespace Server
 {
-    public static class Data
+    public class Data
     {
         public static Image Screen { get; set; }
     }

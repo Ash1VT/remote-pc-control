@@ -69,10 +69,13 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="Data.cs" />
+        <Compile Include="RequestIdentifier.cs" />
+        <Compile Include="Requests\MouseCoordinatesRequest.cs" />
         <Compile Include="Requests\Request.cs" />
         <Compile Include="Program.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
         <Compile Include="Requests\ScreenRequest.cs" />
+        <Compile Include="Responses\MouseCoordinatesResponse.cs" />
         <Compile Include="Responses\Response.cs" />
         <Compile Include="Responses\ScreenResponse.cs" />
         <Compile Include="ScreenMaker.cs" />
