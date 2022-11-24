@@ -9,11 +9,13 @@ namespace Server.Responses
     public class ScreenResponse : Response
     {
 
-        private byte[] _screen;
+        private byte[] _changedPart;
+        private Point _startPoint;
         
-        public ScreenResponse(Image screen) : base()
+        public ScreenResponse(Image changedPart, Point startPoint) : base()
         {
-            _screen = imageToByteArray(screen);
+            _changedPart = imageToByteArray(changedPart);
+            _startPoint = startPoint;
         }
         public byte[] imageToByteArray(System.Drawing.Image imageIn)
         {
@@ -31,7 +33,10 @@ namespace Server.Responses
         public override JObject ToJson()
         {
             JObject jObject = base.ToJson();
-            jObject.Add("Screen", System.Text.Encoding.Default.GetString(_screen));
+            jObject.Add("Screen", System.Text.Encoding.Default.GetString(_changedPart));
+            jObject.Add("X", _startPoint.X.ToString());
+            jObject.Add("Y", _startPoint.Y.ToString());
+
             return jObject;
         }
     }

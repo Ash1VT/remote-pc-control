@@ -5,7 +5,9 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using Server.Responses;
 
 namespace Server
 {
@@ -29,7 +31,8 @@ namespace Server
             }
             return memoryStream.ToArray();
         }
-        
+
+        private static Server _server;
         public static void Main(string[] args)
         {
 
@@ -52,15 +55,21 @@ namespace Server
             //
             // Console.WriteLine(data == data1);
 
-// Print result as JSON
-            Server server = new Server(IPAddress.Parse("192.168.0.102"), 13000);
-            server.Start();
-            server.Run();
+            // Print result as JSON
+            _server = new Server(IPAddress.Parse("192.168.0.103"), 13000);
+            _server.Start();
+            _server.AcceptClient();
+            _server.StartAcceptRequests();
+            ScreenManager manager = new ScreenManager();
+            manager.ScreenChanged += Manager_ScreenChanged;
+            manager.Start();
 
-            while (true)
-            {
-                
-            }
+            while (true) { }
+
+            //while (true)
+            //{
+            //    server.SendResponse(new TestResponse());
+            //}
 
 
             // TcpListener listener = new TcpListener(IPAddress.Parse("127.0.0.1"), 13000);
@@ -79,6 +88,18 @@ namespace Server
             //     Console.WriteLine("Received: {0}", data);
             // }
 
+        }
+
+        private static void Manager_ScreenChanged(Image changedPart, Point startPoint)
+        {
+
+            //TestResponse testResponse = new TestResponse();
+            //_server.SendResponse(testResponse);
+            ScreenResponse screenResponse = new ScreenResponse(changedPart, startPoint);
+            _server.SendResponse(screenResponse);
+            //Console.WriteLine($"X: {startPoint.X} Y: {startPoint.Y}");
+            //Console.WriteLine($"Width: {changedPart.Width} Height: {changedPart.Height}");
+            //Console.WriteLine();
         }
     }
 }

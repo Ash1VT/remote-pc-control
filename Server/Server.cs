@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Mime;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -19,52 +20,33 @@ namespace Server
     public class Server
     {
 
-        private TcpListener _listener;
-        private TcpClient _client;
-        private TcpClient _client1;
-        private TcpClient _client2;
-
-
-        private NetworkStream _stream;
-        private NetworkStream _stream1;
-        private NetworkStream _stream2;
+        private Socket _listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        private Socket _client = null;
 
         
         
         public Server(IPAddress serverAddress, int serverPort)
         {
-            _listener = new TcpListener(serverAddress, serverPort);
+            EndPoint serverEndPoint = new IPEndPoint(serverAddress, serverPort);
+            _listener.Bind(serverEndPoint);
         }
 
 
         public void Start()
         {
-            _listener.Start();
+            _listener.Listen(1);
             Console.WriteLine("STARTED LISTENER");
         }
 
-        private void AcceptClient()
+        public void AcceptClient()
         {
-            _client = _listener.AcceptTcpClient();
-            _client1 = _listener.AcceptTcpClient();
-            _client2 = _listener.AcceptTcpClient();
+            _client = _listener.Accept();
 
-            GetStream();
             Console.WriteLine("USER CONNECTED");
         }
-
-        private void GetStream()
-        {
-            _stream = _client.GetStream();
-            _stream1 = _client1.GetStream();
-            _stream2 = _client2.GetStream();
-        }
         
-        public void Run()
+        public void StartAcceptRequests()
         {
-            AcceptClient();
-            
-            Semaphore sem = new Semaphore(1, 1);
             
             new Task(() =>
             {
@@ -72,124 +54,46 @@ namespace Server
                 {
                     try
                     {
-                        Byte[] bytes = new Byte[256];
-                        int i = _stream.Read(bytes, 0, bytes.Length);
-                        string data = System.Text.Encoding.Default.GetString(bytes, 0, i);
-                        
-                        JObject jObject = JObject.Parse(data);
+                        byte[] bytes = new byte[256];
+                        _client.Receive(bytes);
 
-                        Request request = RequestIdentifier.GetRequest(jObject);
+                        new Task( () =>
+                        {
+                            string data = System.Text.Encoding.Default.GetString(bytes);
 
-                        sem.WaitOne();
-                        request.Execute();
-                        sem.Release();
-                        Console.WriteLine("STREAM");
-                        Response response = request.GetResponse();
 
-                        string data1 = response.ToJson().ToString();
-                        
-                        byte[] bytes1 = System.Text.Encoding.Default.GetBytes(data1);
-                        _stream.Write(bytes1, 0, bytes1.Length);
+                            string[] requests = data.Split('\0');
+                            foreach (string stringRequest in requests)
+                            {
+                                JObject jObject = JObject.Parse(stringRequest);
+                                Request request = RequestIdentifier.GetRequest(jObject);
+                                request.Execute();
+                                Response response = request.GetResponse();
+                                SendResponse(response);
+                            }
+                        }).Start();
                         
                     }
                     catch (System.IO.IOException e)
                     {
                         Console.WriteLine("USER DISCONNECTED");
-                        AcceptClient();
-                    }
-                }
-            }).Start();
-            
-            new Task(() =>
-            {
-                while (true)
-                {
-                    try
-                    {
-                        // string data = ReadMessage();
-                        
-                        Byte[] bytes = new Byte[256];
-                        int i = _stream1.Read(bytes, 0, bytes.Length);
-                        string data = System.Text.Encoding.Default.GetString(bytes, 0, i);
-                        
-                        JObject jObject = JObject.Parse(data);
-            
-                        Request request = RequestIdentifier.GetRequest(jObject);
-                        sem.WaitOne();
-                        request.Execute();
-                        sem.Release();
-
-                        Console.WriteLine("STREAM1");
-                        Response response = request.GetResponse();
-            
-                        string data1 = response.ToJson().ToString();
-                        
-                        byte[] bytes1 = System.Text.Encoding.Default.GetBytes(data1);
-                        _stream1.Write(bytes1, 0, bytes1.Length);
-                    }
-                    catch (System.IO.IOException e)
-                    {
-                        Console.WriteLine("USER DISCONNECTED");
-                        AcceptClient();
-                    }
-                }
-            }).Start();
-            
-            
-            new Task(() =>
-            {
-                while (true)
-                {
-                    try
-                    {
-                        // string data = ReadMessage();
-                        
-                        Byte[] bytes = new Byte[256];
-                        int i = _stream2.Read(bytes, 0, bytes.Length);
-                        string data = System.Text.Encoding.Default.GetString(bytes, 0, i);
-                        
-                        JObject jObject = JObject.Parse(data);
-            
-                        Request request = RequestIdentifier.GetRequest(jObject);
-                        sem.WaitOne();
-                        request.Execute();
-                        sem.Release();
-
-                        Console.WriteLine("STREAM2");
-
-                        Response response = request.GetResponse();
-            
-                        string data1 = response.ToJson().ToString();
-                        
-                        byte[] bytes1 = System.Text.Encoding.Default.GetBytes(data1);
-                        _stream2.Write(bytes1, 0, bytes1.Length);
-                    }
-                    catch (System.IO.IOException e)
-                    {
-                        Console.WriteLine("USER DISCONNECTED");
-                        AcceptClient();
                     }
                 }
             }).Start();
             
         }
 
-        private string ReadMessage()
-        {
-            Byte[] bytes = new Byte[256];
-            int i = _stream.Read(bytes, 0, bytes.Length);
-            return System.Text.Encoding.Default.GetString(bytes, 0, i);
-        }
 
-        private void SendAnswer(string data)
+
+        public void SendResponse(Response response)
         {
-            byte[] bytes = System.Text.Encoding.Default.GetBytes(data);
-            _stream.Write(bytes, 0, bytes.Length);
+            byte[] bytes = System.Text.Encoding.Default.GetBytes($"{response.ToJson().ToString()}\0");
+            _client.Send(bytes);
         }
         
         public void Stop()
         {
-            _listener.Stop();
+            _listener.Close();
             Console.WriteLine("LISTENER STOPPED");
         }
     }

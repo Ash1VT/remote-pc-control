@@ -10,8 +10,9 @@ namespace Server
             string requestType = jObject["Type"].ToString();
             switch (requestType)
             {
-                case "ScreenRequest": return new ScreenRequest(jObject);
+                //case "ScreenRequest": return new ScreenRequest(jObject);
                 case "MouseCoordinatesRequest": return new MouseCoordinatesRequest(jObject);
+                case "Test": return new TestRequest(jObject);
                 default: return null;
             }
 

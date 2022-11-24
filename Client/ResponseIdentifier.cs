@@ -18,6 +18,7 @@ namespace Client
             {
                 case "ScreenResponse": return new ScreenResponse(jObject);
                 case "MouseCoordinatesResponse": return new MouseCoordinatesResponse(jObject);
+                case "Test": return new TestResponse(jObject);
                 default: return null;
             }
 
