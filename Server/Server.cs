@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -87,7 +88,8 @@ namespace Server
 
         public void SendResponse(Response response)
         {
-            byte[] bytes = System.Text.Encoding.Default.GetBytes($"{response.ToJson().ToString()}\0");
+            string stringResponse = response.ToJson().ToString();
+            byte[] bytes = System.Text.Encoding.Default.GetBytes($"{stringResponse}{String.Concat(IEnumerator("\0", 300000 - stringResponse.Length))}");
             _client.Send(bytes);
         }
         

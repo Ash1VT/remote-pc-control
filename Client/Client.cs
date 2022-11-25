@@ -73,7 +73,7 @@ namespace Client
 
                 while (_client.Connected)
                 {
-                    byte[] answerData = new byte[1000000];
+                    byte[] answerData = new byte[300000];
 
                     _client.Receive(answerData);
 

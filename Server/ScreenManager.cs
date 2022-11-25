@@ -42,7 +42,7 @@ namespace Server
             {
                 
                 
-                        ScreenChanged?.Invoke(newScreen, new Point(0,0));
+                ScreenChanged?.Invoke(newScreen, new Point(0,0));
                        
                
                 //}
