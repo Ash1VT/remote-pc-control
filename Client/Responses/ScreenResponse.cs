@@ -38,7 +38,7 @@ namespace Client.Responses
                 Data.Image = _screen;
             else
             {
-                Graphics gImage = Graphics.FromImage(Data.Image);
+                using Graphics gImage = Graphics.FromImage(Data.Image);
                 gImage.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceCopy;
                 gImage.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
                 gImage.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighSpeed;
@@ -46,8 +46,8 @@ namespace Client.Responses
 
                 ScreenManager.ChangeScreen(Data.Image);
 
-                gImage.ReleaseHdc();
-                gImage.Dispose();
+                //gImage.ReleaseHdc();
+                //gImage.Dispose();
             }
         }
 

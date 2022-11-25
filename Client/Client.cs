@@ -25,8 +25,8 @@ namespace Client
 
         public Client()
         {
-            _inBuffer = Buffer.New();
-            _outBuffer = Buffer.New();
+            _inBuffer = Buffer.New(300000);
+            _outBuffer = Buffer.New(20000);
         }
 
         public void Connect(string serverAddress, int serverPort)
@@ -90,39 +90,32 @@ namespace Client
 
                 while (true)
                 {
-<<<<<<< Updated upstream
-                    byte[] answerData = new byte[300000];
+                    //byte[] answerData = new byte[300000];
 
-                    _client.Receive(answerData);
-=======
-                    
+                    //_client.Receive(answerData);
                     AweSock.ReceiveMessage(_server, _inBuffer);
->>>>>>> Stashed changes
-
-                    Task.Run(() =>
-                    {
-
-                        string answer = Buffer.Get<string>(_inBuffer);
-                        //string answer = System.Text.Encoding.Default.GetString(answerData);
-
-                        string[] responses = answer.Split('\0');
-                        foreach (var stringResponse in responses)
-                        {
-                            
-                                if (stringResponse.Length == 0)
-                                {
-                                    return;
-                                }
-                                JObject jObject = JObject.Parse(stringResponse.ToString());
-
-                                Response response = ResponseIdentifier.GetResponse(jObject);
-                                response.Execute();
-
-                            
-
-                        }
-                    });
+                    Buffer.FinalizeBuffer(_inBuffer);
                     
+                    //Task.Run(() =>
+                    //{
+
+                    string answer = Buffer.Get<string>(_inBuffer);
+                        
+                    Buffer.ClearBuffer(_inBuffer);
+                    //string answer = System.Text.Encoding.Default.GetString(answerData);
+
+                    //string[] responses = answer.Split('\0');
+                        
+                    JObject jObject = JObject.Parse(answer);
+
+                    Response response = ResponseIdentifier.GetResponse(jObject);
+                    response.Execute();
+
+                            
+
+                        //}
+                    //});
+
 
 
 

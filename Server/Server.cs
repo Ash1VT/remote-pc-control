@@ -40,8 +40,8 @@ namespace Server
         {
             //EndPoint serverEndPoint = new IPEndPoint(serverAddress, serverPort);
             _port = serverPort;
-            _inBuffer = Buffer.New();
-            _outBuffer = Buffer.New();
+            _inBuffer = Buffer.New(20000);
+            _outBuffer = Buffer.New(300000);
         }
 
 
@@ -99,22 +99,21 @@ namespace Server
 
         public void SendResponse(Response response)
         {
-<<<<<<< Updated upstream
-            string stringResponse = response.ToJson().ToString();
-            byte[] bytes = System.Text.Encoding.Default.GetBytes($"{stringResponse}{String.Concat(IEnumerator("\0", 300000 - stringResponse.Length))}");
-            _client.Send(bytes);
-=======
+
+            
+            //string stringResponse = response.ToJson().ToString();
+            //byte[] bytes = System.Text.Encoding.Default.GetBytes($"{stringResponse}{String.Concat(IEnumerator("\0", 300000 - stringResponse.Length))}");
+            //_client.Send(bytes);
             if (response != null)
             {
                 string stringResponse = response.ToJson().ToString();
-
-                Buffer.ClearBuffer(_outBuffer);
                 Buffer.Add(_outBuffer, stringResponse);
                 Buffer.FinalizeBuffer(_outBuffer);
                 //byte[] bytes = System.Text.Encoding.Default.GetBytes($"{stringResponse}{String.Concat(Enumerable.Repeat("\0", 400000 - stringResponse.Length))}");
                 AweSock.SendMessage(_client, _outBuffer);
+                Buffer.ClearBuffer(_outBuffer);
+
             }
->>>>>>> Stashed changes
         }
 
        
