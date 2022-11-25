@@ -44,6 +44,9 @@
     <Reference Include="Aspose.OCR, Version=22.9.0.0, Culture=neutral, PublicKeyToken=716fcc553a201e56, processorArchitecture=MSIL">
       <HintPath>..\packages\Aspose.OCR.22.9.0\lib\netstandard2.0\Aspose.OCR.dll</HintPath>
     </Reference>
+    <Reference Include="AwesomeSockets, Version=2.1.18.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\AwesomeSockets.2.1.18\lib\netstandard2.0\AwesomeSockets.dll</HintPath>
+    </Reference>
     <Reference Include="LZ4, Version=1.0.15.93, Culture=neutral, PublicKeyToken=62e1b5ec1eec9bdd, processorArchitecture=MSIL">
       <HintPath>..\packages\lz4net.1.0.15.93\lib\net4-client\LZ4.dll</HintPath>
     </Reference>

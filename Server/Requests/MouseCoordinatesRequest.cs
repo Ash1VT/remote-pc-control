@@ -17,12 +17,12 @@ namespace Server.Requests
 
         public override void Execute()
         {
-            User32.SetCursorPos((int)(_x / 1.25), (int)(_y / 1.25));
+            User32.SetCursorPos((int)(_x), (int)(_y));
         }
 
         public override Response GetResponse()
         {
-            return new MouseCoordinatesResponse();
+            return null;
         }
     }
 }

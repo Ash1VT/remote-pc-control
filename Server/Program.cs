@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using Server.Managers;
 using Server.Responses;
 
 namespace Server
@@ -60,10 +61,13 @@ namespace Server
             _server.Start();
             _server.AcceptClient();
             _server.StartAcceptRequests();
-            ScreenManager manager = new ScreenManager();
-            manager.ScreenChanged += Manager_ScreenChanged;
-            manager.Start();
+            ScreenManager screenManager = new ScreenManager();
+            screenManager.ScreenChanged += Manager_ScreenChanged;
+            screenManager.Start();
 
+            MouseCoordinatesManager mouseManager = new MouseCoordinatesManager();
+            mouseManager.MouseCoordinatesChanged += Manager_MouseCoordinatesChanged;
+            mouseManager.Start();
             while (true) { }
 
             //while (true)
@@ -100,6 +104,12 @@ namespace Server
             //Console.WriteLine($"X: {startPoint.X} Y: {startPoint.Y}");
             //Console.WriteLine($"Width: {changedPart.Width} Height: {changedPart.Height}");
             //Console.WriteLine();
+        }
+
+        private static void Manager_MouseCoordinatesChanged(Point destPoint)
+        {
+            Console.WriteLine($"X: {destPoint.X} Y: {destPoint.Y}");
+            Console.WriteLine();
         }
     }
 }

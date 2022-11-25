@@ -5,23 +5,34 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using AwesomeSockets.Domain.Sockets;
+using AwesomeSockets.Sockets;
+using AwesomeSockets.Buffers;
 using Client.Requests;
 using Client.Responses;
 using Newtonsoft.Json.Linq;
+using Buffer = AwesomeSockets.Buffers.Buffer;
 
 namespace Client
 {
     public class Client
     {
-        private Socket _client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        //private Socket _client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        private ISocket _server;
+
+        private Buffer _inBuffer;
+        private Buffer _outBuffer;
 
         public Client()
         {
+            _inBuffer = Buffer.New();
+            _outBuffer = Buffer.New();
         }
 
         public void Connect(string serverAddress, int serverPort)
         {
-            _client.Connect(serverAddress, serverPort);
+            _server = AweSock.TcpConnect(serverAddress, serverPort);
+            //_client.Connect(serverAddress, serverPort);
             Console.WriteLine($"CONNECTED TO {serverAddress}:{serverPort}");
         }
     
@@ -30,8 +41,14 @@ namespace Client
         {
             try
             {
-                byte[] bytes = System.Text.Encoding.Default.GetBytes($"{request.ToJson().ToString()}\0");
-                _client.Send(bytes);
+
+
+                Buffer.ClearBuffer(_outBuffer);
+                Buffer.Add(_outBuffer, request.ToJson().ToString());
+                Buffer.FinalizeBuffer(_outBuffer);
+                AweSock.SendMessage(_server, _outBuffer);
+                //byte[] bytes = System.Text.Encoding.Default.GetBytes($"{request.ToJson().ToString()}\0");
+                //_server.Send(bytes);
 
                 
                 // ANSWER
@@ -71,15 +88,22 @@ namespace Client
             {
 
 
-                while (_client.Connected)
+                while (true)
                 {
+<<<<<<< Updated upstream
                     byte[] answerData = new byte[300000];
 
                     _client.Receive(answerData);
+=======
+                    
+                    AweSock.ReceiveMessage(_server, _inBuffer);
+>>>>>>> Stashed changes
 
                     Task.Run(() =>
                     {
-                        string answer = System.Text.Encoding.Default.GetString(answerData);
+
+                        string answer = Buffer.Get<string>(_inBuffer);
+                        //string answer = System.Text.Encoding.Default.GetString(answerData);
 
                         string[] responses = answer.Split('\0');
                         foreach (var stringResponse in responses)
@@ -109,7 +133,7 @@ namespace Client
 
         public void Disconnect()
         {
-            _client.Close();
+            _server.Close();
             Console.WriteLine("DISCONNECTING");
         }
         

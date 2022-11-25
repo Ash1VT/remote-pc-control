@@ -12,37 +12,48 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using AwesomeSockets.Domain.Sockets;
+using AwesomeSockets.Sockets;
+using AwesomeSockets.Buffers;
 using Newtonsoft.Json.Linq;
 using Server.Requests;
 using Server.Responses;
+using Buffer = AwesomeSockets.Buffers.Buffer;
 
 namespace Server
 {
     public class Server
     {
+        private ISocket _listener;
+        private ISocket _client;
 
-        private Socket _listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        private Socket _client = null;
+        private int _port;
+
+        private Buffer _inBuffer;
+        private Buffer _outBuffer;
+        //private Socket _listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        //private Socket _client = null;
 
         
         
         public Server(IPAddress serverAddress, int serverPort)
         {
-            EndPoint serverEndPoint = new IPEndPoint(serverAddress, serverPort);
-            _listener.Bind(serverEndPoint);
+            //EndPoint serverEndPoint = new IPEndPoint(serverAddress, serverPort);
+            _port = serverPort;
+            _inBuffer = Buffer.New();
+            _outBuffer = Buffer.New();
         }
 
 
         public void Start()
         {
-            _listener.Listen(1);
+            _listener = AweSock.TcpListen(_port);
             Console.WriteLine("STARTED LISTENER");
         }
 
         public void AcceptClient()
         {
-            _client = _listener.Accept();
-
+            _client = AweSock.TcpAccept(_listener);
             Console.WriteLine("USER CONNECTED");
         }
         
@@ -55,12 +66,12 @@ namespace Server
                 {
                     try
                     {
-                        byte[] bytes = new byte[256];
-                        _client.Receive(bytes);
+                        AweSock.ReceiveMessage(_client, _inBuffer);
 
                         new Task( () =>
                         {
-                            string data = System.Text.Encoding.Default.GetString(bytes);
+                            string data = Buffer.Get<string>(_inBuffer);
+                            //string data = System.Text.Encoding.Default.GetString(_inBuffer);
 
 
                             string[] requests = data.Split('\0');
@@ -88,10 +99,25 @@ namespace Server
 
         public void SendResponse(Response response)
         {
+<<<<<<< Updated upstream
             string stringResponse = response.ToJson().ToString();
             byte[] bytes = System.Text.Encoding.Default.GetBytes($"{stringResponse}{String.Concat(IEnumerator("\0", 300000 - stringResponse.Length))}");
             _client.Send(bytes);
+=======
+            if (response != null)
+            {
+                string stringResponse = response.ToJson().ToString();
+
+                Buffer.ClearBuffer(_outBuffer);
+                Buffer.Add(_outBuffer, stringResponse);
+                Buffer.FinalizeBuffer(_outBuffer);
+                //byte[] bytes = System.Text.Encoding.Default.GetBytes($"{stringResponse}{String.Concat(Enumerable.Repeat("\0", 400000 - stringResponse.Length))}");
+                AweSock.SendMessage(_client, _outBuffer);
+            }
+>>>>>>> Stashed changes
         }
+
+       
         
         public void Stop()
         {
