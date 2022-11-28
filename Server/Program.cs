@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using Server.DeviceApi;
 using Server.Managers;
 using Server.Responses;
 
@@ -15,26 +16,11 @@ namespace Server
     
    
     
-    internal class Program
+    public class Program
     {
-        public static Image byteArrayToImage(byte[] byteArrayIn)
-        {
-            MemoryStream ms = new MemoryStream(byteArrayIn);
-            Image returnImage = Image.FromStream(ms, true, false);
-            return returnImage;
-        }
-        
-        public static byte[] imageToByteArray(System.Drawing.Image imageIn)
-        {
-            MemoryStream memoryStream = new MemoryStream();
-            {
-                imageIn.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Jpeg);
-            }
-            return memoryStream.ToArray();
-        }
 
         private static Server _server;
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
 
             // MemoryStream stream = new MemoryStream();
@@ -51,23 +37,22 @@ namespace Server
             //
             // JObject jObject = new JObject();
             // jObject.Add("Screen", data);
-            //
+            //qq
             // string data1 = jObject["Screen"].ToString();
             //
             // Console.WriteLine(data == data1);
-
             // Print result as JSON
+
             _server = new Server(IPAddress.Parse("192.168.0.103"), 13000);
             _server.Start();
-            _server.AcceptClient();
+            
+            await _server.AcceptClient();
             _server.StartAcceptRequests();
             ScreenManager screenManager = new ScreenManager();
             screenManager.ScreenChanged += Manager_ScreenChanged;
             screenManager.Start();
 
-            MouseCoordinatesManager mouseManager = new MouseCoordinatesManager();
-            mouseManager.MouseCoordinatesChanged += Manager_MouseCoordinatesChanged;
-            mouseManager.Start();
+
             while (true) { }
 
             //while (true)
@@ -92,24 +77,20 @@ namespace Server
             //     Console.WriteLine("Received: {0}", data);
             // }
 
-        }
+        }   
 
-        private static void Manager_ScreenChanged(Image changedPart, Point startPoint)
+        private static async Task Manager_ScreenChanged(Image screen)
         {
 
             //TestResponse testResponse = new TestResponse();
             //_server.SendResponse(testResponse);
-            ScreenResponse screenResponse = new ScreenResponse(changedPart, startPoint);
-            _server.SendResponse(screenResponse);
+            ScreenResponse screenResponse = new ScreenResponse(screen);
+            await _server.SendResponse(screenResponse);
             //Console.WriteLine($"X: {startPoint.X} Y: {startPoint.Y}");
             //Console.WriteLine($"Width: {changedPart.Width} Height: {changedPart.Height}");
             //Console.WriteLine();
         }
 
-        private static void Manager_MouseCoordinatesChanged(Point destPoint)
-        {
-            Console.WriteLine($"X: {destPoint.X} Y: {destPoint.Y}");
-            Console.WriteLine();
-        }
+  
     }
 }
