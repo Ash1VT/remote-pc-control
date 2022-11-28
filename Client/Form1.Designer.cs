@@ -29,39 +29,35 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.screenPictureBox = new System.Windows.Forms.PictureBox();
+            ((System.ComponentModel.ISupportInitialize)(this.screenPictureBox)).BeginInit();
             this.SuspendLayout();
             // 
-            // pictureBox1
+            // screenPictureBox
             // 
-            this.pictureBox1.Location = new System.Drawing.Point(4, 5);
-            this.pictureBox1.Margin = new System.Windows.Forms.Padding(2);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(1046, 635);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBox1.TabIndex = 0;
-            this.pictureBox1.TabStop = false;
-            this.pictureBox1.MouseEnter += new System.EventHandler(this.pictureBox1_MouseEnter);
-            this.pictureBox1.MouseLeave += new System.EventHandler(this.pictureBox1_MouseLeave);
-            this.pictureBox1.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseMove);
+            this.screenPictureBox.Location = new System.Drawing.Point(5, 6);
+            this.screenPictureBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.screenPictureBox.Name = "screenPictureBox";
+            this.screenPictureBox.Size = new System.Drawing.Size(1395, 782);
+            this.screenPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.screenPictureBox.TabIndex = 0;
+            this.screenPictureBox.TabStop = false;
             // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1061, 650);
-            this.Controls.Add(this.pictureBox1);
-            this.Margin = new System.Windows.Forms.Padding(2);
+            this.ClientSize = new System.Drawing.Size(1415, 800);
+            this.Controls.Add(this.screenPictureBox);
+            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Form1";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.screenPictureBox)).EndInit();
             this.ResumeLayout(false);
-
         }
 
-        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.PictureBox screenPictureBox;
 
         #endregion
     }

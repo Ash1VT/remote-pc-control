@@ -5,73 +5,40 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using AwesomeSockets.Domain.Sockets;
-using AwesomeSockets.Sockets;
-using AwesomeSockets.Buffers;
+using System.Timers;
 using Client.Requests;
 using Client.Responses;
 using Newtonsoft.Json.Linq;
-using Buffer = AwesomeSockets.Buffers.Buffer;
 
 namespace Client
 {
     public class Client
     {
-        //private Socket _client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        private ISocket _server;
-
-        private Buffer _inBuffer;
-        private Buffer _outBuffer;
+        private Socket _server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
         public Client()
         {
-            _inBuffer = Buffer.New(300000);
-            _outBuffer = Buffer.New(20000);
         }
 
-        public void Connect(string serverAddress, int serverPort)
+        public async Task Connect(string serverAddress, int serverPort)
         {
-            _server = AweSock.TcpConnect(serverAddress, serverPort);
-            //_client.Connect(serverAddress, serverPort);
+            await _server.ConnectAsync(serverAddress, serverPort);
             Console.WriteLine($"CONNECTED TO {serverAddress}:{serverPort}");
         }
     
 
-        public bool SendRequest(Request request)
+        public async Task<bool> SendRequest(Request request)
         {
             try
             {
+                if (request == null) 
+                    return false;
+                string stringRequest = request.ToJson().ToString();
+                byte[] bytes = new byte[200];
+                Buffer.BlockCopy(System.Text.Encoding.Default.GetBytes(stringRequest), 0, bytes, 0, stringRequest.Length);
+                ArraySegment<byte> sendingBytes = new ArraySegment<byte>(bytes);
 
-
-                Buffer.ClearBuffer(_outBuffer);
-                Buffer.Add(_outBuffer, request.ToJson().ToString());
-                Buffer.FinalizeBuffer(_outBuffer);
-                AweSock.SendMessage(_server, _outBuffer);
-                //byte[] bytes = System.Text.Encoding.Default.GetBytes($"{request.ToJson().ToString()}\0");
-                //_server.Send(bytes);
-
-                
-                // ANSWER
-                //byte[] answerData = new byte[4000000];
-                //string answer = String.Empty;
-                
-                //_stream.Read(answerData, 0, answerData.Length);
-                //try
-                //{
-                    
-                //    answer = System.Text.Encoding.Default.GetString(answerData);
-                //    JObject jObject = JObject.Parse(answer);
-                //    Response response = ResponseIdentifier.GetResponse(jObject);
-                //    response.Execute();
-                //}
-                //catch
-                //{
-                //    Console.WriteLine(answer);
-                //}
-
-
-
-
+                int sent = await _server.SendAsync(sendingBytes, SocketFlags.None);
                 return true;
             }
             catch (System.IO.IOException e)
@@ -84,46 +51,26 @@ namespace Client
 
         public void StartAcceptResponses()
         {
-            new Task(() =>
-            {
-
-
-                while (true)
-                {
-                    //byte[] answerData = new byte[300000];
-
-                    //_client.Receive(answerData);
-                    AweSock.ReceiveMessage(_server, _inBuffer);
-                    Buffer.FinalizeBuffer(_inBuffer);
-                    
-                    //Task.Run(() =>
-                    //{
-
-                    string answer = Buffer.Get<string>(_inBuffer);
-                        
-                    Buffer.ClearBuffer(_inBuffer);
-                    //string answer = System.Text.Encoding.Default.GetString(answerData);
-
-                    //string[] responses = answer.Split('\0');
-                        
-                    JObject jObject = JObject.Parse(answer);
-
-                    Response response = ResponseIdentifier.GetResponse(jObject);
-                    response.Execute();
-
-                            
-
-                        //}
-                    //});
-
-
-
-
-                }
-            }
-            ).Start();
+            Task.Run(HandleIncomingResponse);
         }
 
+        private async Task HandleIncomingResponse()
+        {
+            ArraySegment<byte> answerData = new ArraySegment<byte>(new byte[330000]);
+            var res = await _server.ReceiveAsync(answerData, SocketFlags.None);
+            Task.Run(HandleIncomingResponse);
+            string answer = System.Text.Encoding.Default.GetString(answerData.Array);
+            try
+            {
+                JObject jObject = JObject.Parse(answer);
+
+                Response response = ResponseIdentifier.GetResponse(jObject);
+                response.Execute();
+            }
+            catch
+            {
+            }
+        }
         public void Disconnect()
         {
             _server.Close();
