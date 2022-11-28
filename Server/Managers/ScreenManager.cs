@@ -19,7 +19,7 @@ namespace Server.Managers
 
 
 
-        public delegate void ScreenHandler(Image changedPart, Point startPoint);
+        public delegate Task ScreenHandler(Image screen);
 
         public event ScreenHandler? ScreenChanged;
 
@@ -33,40 +33,34 @@ namespace Server.Managers
         public void Start()
         {
             _isRunning = true;
-            //int frames = 0;
-            //System.Timers.Timer timer = new System.Timers.Timer(1000);
-            //timer.Elapsed += (Object source, ElapsedEventArgs e) => { Console.WriteLine(frames); frames = 0; };
-            //timer.AutoReset = true;
-            //timer.Enabled = true;
-            //timer.Start();
 
-
-           
-
-               
-
-            while (_isRunning)
+            Task.Run(async () =>
             {
-                DesktopFrame frame = null;
-                try
-                {
-                    frame = _desktopDuplicator.GetLatestFrame();
-                }
-                catch
-                {
-                    _desktopDuplicator = new DesktopDuplicator(0);
-                }
 
-                if (frame != null)
+                while (_isRunning)
                 {
-                    if (frame.DesktopImage != null)
+                    DesktopFrame frame = null;
+                    try
                     {
-
-                        ScreenChanged?.Invoke(frame.DesktopImage, new Point(0, 0));
+                        frame = _desktopDuplicator.GetLatestFrame();
+                    }
+                    catch
+                    {
+                        _desktopDuplicator = new DesktopDuplicator(0);
                     }
 
+                    if (frame != null)
+                    {
+                        if (frame.DesktopImage != null)
+                        {
+                            Console.WriteLine(frame.UpdatedRegions[0].Location);
+                            ScreenChanged?.Invoke(frame.DesktopImage);
+
+                        }
+
+                    }
                 }
-            }
+            });
             
  
         }
