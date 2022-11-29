@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Client
 {
-    public class ScreenManager
+    public class ScreenChanger
     {
         public delegate void ScreenHandler(Image screen);
 

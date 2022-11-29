@@ -14,16 +14,16 @@ using Task = System.Threading.Tasks.Task;
 
 namespace Client
 {
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
         private Client _client;
         private KeyboardHook _keyboardHook;
-        public Form1(Client client)
+        public MainForm(Client client)
         {
             InitializeComponent();
             _client = client;
             _keyboardHook = new KeyboardHook();
-            _keyboardHook.unhook();
+            _keyboardHook.Unhook();
         }
         
 
@@ -41,7 +41,7 @@ namespace Client
             _keyboardHook.KeyUp += hook_KeyUp;
             Data.XCoefficient = 1920.0 / screenPictureBox.Width;
             Data.YCoefficient = 1080.0 / screenPictureBox.Height;
-            ScreenManager.ScreenChanged += screen_Changed;
+            ScreenChanger.ScreenChanged += screen_Changed;
             
         }
 
@@ -62,7 +62,6 @@ namespace Client
             if (ActiveControl != screenPictureBox)
                 return;
             
-            // Console.WriteLine($"Up {e.KeyValue}");
             e.Handled = true;
             
             KeyboardButtonUpRequest keyboardButtonUpRequest = new KeyboardButtonUpRequest(e.KeyValue);
@@ -93,13 +92,13 @@ namespace Client
 
         private void screenPictureBox_MouseEnter(object sender, EventArgs e)
         {
-            _keyboardHook.hook();
+            _keyboardHook.Hook();
             ActiveControl = screenPictureBox;
         }
         
         private void screenPictureBox_MouseLeave(object sender, EventArgs e)
         {
-            _keyboardHook.unhook();
+            _keyboardHook.Unhook();
             ActiveControl = null;
         }
 

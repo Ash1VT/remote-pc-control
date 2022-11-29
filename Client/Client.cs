@@ -15,14 +15,17 @@ namespace Client
     public class Client
     {
         private Socket _server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
-        public Client()
+        private int _incomingResponseBytesCount;
+        private int _outgoingRequestBytesCount;
+        public Client(int incomingResponseBytesCount, int outgoingRequestBytesCount)
         {
+            _incomingResponseBytesCount = incomingResponseBytesCount;
+            _outgoingRequestBytesCount = outgoingRequestBytesCount;
         }
 
-        public async Task Connect(string serverAddress, int serverPort)
+        public void Connect(string serverAddress, int serverPort)
         {
-            await _server.ConnectAsync(serverAddress, serverPort);
+            _server.Connect(serverAddress, serverPort);
             Console.WriteLine($"CONNECTED TO {serverAddress}:{serverPort}");
         }
     
@@ -33,8 +36,9 @@ namespace Client
             {
                 if (request == null) 
                     return false;
+
                 string stringRequest = request.ToJson().ToString();
-                byte[] bytes = new byte[200];
+                byte[] bytes = new byte[_outgoingRequestBytesCount];
                 Buffer.BlockCopy(System.Text.Encoding.Default.GetBytes(stringRequest), 0, bytes, 0, stringRequest.Length);
                 ArraySegment<byte> sendingBytes = new ArraySegment<byte>(bytes);
 
@@ -51,26 +55,20 @@ namespace Client
 
         public void StartAcceptResponses()
         {
-            Task.Run(HandleIncomingResponse);
+            Task.Run(async () => {
+                ArraySegment<byte> answerData = new ArraySegment<byte>(new byte[_incomingResponseBytesCount]);
+                var res = await _server.ReceiveAsync(answerData, SocketFlags.None);
+                _ = Task.Run(() => {
+                    string answer = System.Text.Encoding.Default.GetString(answerData.Array);
+
+                    JObject jObject = JObject.Parse(answer);
+
+                    Response response = ResponseIdentifier.GetResponse(jObject);
+                    response.Execute();
+                });
+            });
         }
 
-        private async Task HandleIncomingResponse()
-        {
-            ArraySegment<byte> answerData = new ArraySegment<byte>(new byte[330000]);
-            var res = await _server.ReceiveAsync(answerData, SocketFlags.None);
-            Task.Run(HandleIncomingResponse);
-            string answer = System.Text.Encoding.Default.GetString(answerData.Array);
-            try
-            {
-                JObject jObject = JObject.Parse(answer);
-
-                Response response = ResponseIdentifier.GetResponse(jObject);
-                response.Execute();
-            }
-            catch
-            {
-            }
-        }
         public void Disconnect()
         {
             _server.Close();

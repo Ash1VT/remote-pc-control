@@ -13,8 +13,10 @@ namespace Client.Requests
 
         public virtual JObject ToJson()
         {
-            JObject jObject = new JObject();
-            jObject.Add("Type", GetRequestType());
+            JObject jObject = new JObject
+            {
+                { "Type", GetRequestType() }
+            };
             return jObject;
         }
 

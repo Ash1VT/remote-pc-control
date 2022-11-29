@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -23,109 +24,133 @@ namespace Server
         private Socket _listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         private Socket _client = null;
 
+        private EndPoint _serverAdress;
 
+        private bool _autoRestart = false;
+        private int _incomingRequestBytesCount;
+        private int _outgoingResponseBytesCount;
 
-        public Server(IPAddress serverAddress, int serverPort)
+        public Server(string serverAddress, int serverPort, int incomingRequestBytesCount, int outgoingResponseBytesCount)
         {
-            EndPoint serverEndPoint = new IPEndPoint(serverAddress, serverPort);
-            _listener.Bind(serverEndPoint);
+            _serverAdress = new IPEndPoint(IPAddress.Parse(serverAddress), serverPort);
+            _incomingRequestBytesCount = incomingRequestBytesCount;
+            _outgoingResponseBytesCount = outgoingResponseBytesCount;
+
+            InitListener();
+            BindListener();
         }
 
+        public Server(string serverAddress, int serverPort, int incomingRequestBytesCount, int outcomingResponseBytesCount, bool autoRestart)
+        {
+            _serverAdress = new IPEndPoint(IPAddress.Parse(serverAddress), serverPort);
+            _incomingRequestBytesCount= incomingRequestBytesCount;
+            _outgoingResponseBytesCount = outcomingResponseBytesCount;
+            _autoRestart = autoRestart;
+
+            InitListener();
+            BindListener();
+        }
+
+        private void InitListener()
+        {
+            _listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        }
+
+        private void BindListener()
+        {
+            _listener.Bind(_serverAdress);
+        }
 
         public void Start()
         {
-            _listener.Listen(1);
-            Console.WriteLine("STARTED LISTENER");
+            StartListener();
+            AcceptClient();
+            StartAcceptRequests();
         }
 
-        public async Task AcceptClient()
+        private void StartListener()
         {
-            _client = await _listener.AcceptAsync(); 
-            Console.WriteLine("USER CONNECTED");
+            _listener.Listen(1);
+            Debug.WriteLine("STARTED LISTENER");
+        }
+
+        private void AcceptClient()
+        {
+            _client = _listener.Accept();
+            Debug.WriteLine("CLIENT CONNECTED");
         }
         
-        public void StartAcceptRequests()
+        private void StartAcceptRequests()
         {
+            Debug.WriteLine("TRYING TO START ACCEPTING REQUESTS FROM CLIENT");
 
-            Task.Run(HandleIncomingRequest);
-            
-            //new Task(() =>
-            //{
-            //    while (true)
-            //    {
-            //        try
-            //        {
-            //            AweSock.ReceiveMessage(_client, _inBuffer);
+            if(_client == null )
+            {
+                Debug.WriteLine("CLIENT MUST BE CONNECTED BEFORE STARTING ACCEPTING REQESTS. ABORTING.");
+                return;
+            }
 
-            //            new Task( () =>
-            //            {
-            //                string data = Buffer.Get<string>(_inBuffer);
-            //                //string data = System.Text.Encoding.Default.GetString(_inBuffer);
+            Task.Run(async () =>
+            {
+                while (_client.Connected)
+                {
+                    ArraySegment<byte> incomingData = new ArraySegment<byte>(new byte[_incomingRequestBytesCount]);
+                    var res = await _client.ReceiveAsync(incomingData, SocketFlags.None);
 
+                    _ = Task.Run(() =>
+                    {
+                        string answer = System.Text.Encoding.Default.GetString(incomingData.Array);
 
-            //                string[] requests = data.Split('\0');
-            //                foreach (string stringRequest in requests)
-            //                {
-            //                    JObject jObject = JObject.Parse(stringRequest);
-            //                    Request request = RequestIdentifier.GetRequest(jObject);
-            //                    request.Execute();
-            //                    Response response = request.GetResponse();
-            //                    SendResponse(response);
-            //                }
-            //            }).Start();
+                        JObject jObject = JObject.Parse(answer);
                         
-            //        }
-            //        catch (System.IO.IOException e)
-            //        {
-            //            Console.WriteLine("USER DISCONNECTED");
-            //        }
-            //    }
-            //}).Start();
-            
+                        Request request = RequestIdentifier.GetRequest(jObject);
+                        request.Execute();
+
+                        Response response = request.GetResponse();
+                        SendResponse(response);
+                    });
+                }
+            });
+            Debug.WriteLine("STARTED ACCEPTING REQUESTS FROM CLIENT");
+
         }
 
 
 
         public async Task<bool> SendResponse(Response response)
         {
-
-
-
-            //byte[] bytes = System.Text.Encoding.Default.GetBytes($"{stringResponse}{String.Concat(IEnumerator("\0", 300000 - stringResponse.Length))}");
-            //_client.Send(bytes);
             if (response == null)
                 return false;
-            string stringResponse = response.ToJson().ToString();
-            byte[] bytes = new byte[330000];
-            //ArraySegment<byte> bytes = new ArraySegment<byte>(new byte[170000]);
-            Buffer.BlockCopy(System.Text.Encoding.Default.GetBytes(stringResponse), 0, bytes, 0, stringResponse.Length);
-            ArraySegment<byte> sendingBytes = new ArraySegment<byte>(bytes);
-            //string sendResponse = $"{stringResponse}{String.Concat(Enumerable.Repeat("\0", 170000 - stringResponse.Length))}";
-            //ArraySegment<byte> bytes = new ArraySegment<byte>(System.Text.Encoding.Default.GetBytes(sendResponse));
-            int sent = await _client.SendAsync(sendingBytes, SocketFlags.None);
-            //Console.WriteLine($"Sent {sent}");
-            return true;
-        }
-        
-        private async Task HandleIncomingRequest()
-        {
-            ArraySegment<byte> incomingData = new ArraySegment<byte>(new byte[200]);
-            var res = await _client.ReceiveAsync(incomingData, SocketFlags.None);
-            Task.Run(HandleIncomingRequest);
-            string answer = System.Text.Encoding.Default.GetString(incomingData.Array);
 
-            JObject jObject = JObject.Parse(answer);
-            Request request = RequestIdentifier.GetRequest(jObject);
-            request.Execute();
-            Console.WriteLine(jObject.ToString());
-            Response response = request.GetResponse();
-            SendResponse(response);
+            try
+            {
+                string stringResponse = response.ToJson().ToString();
+                byte[] bytes = new byte[_outgoingResponseBytesCount];
+                Buffer.BlockCopy(System.Text.Encoding.Default.GetBytes(stringResponse), 0, bytes, 0, stringResponse.Length);
+                ArraySegment<byte> sendingBytes = new ArraySegment<byte>(bytes);
+                int sent = await _client.SendAsync(sendingBytes, SocketFlags.None);
+            }
+            catch
+            {
+                Debug.WriteLine("USER IS NOT RESPONDING. DISCONNECTING.");
+                Stop();
+
+                if (_autoRestart)
+                {
+                    InitListener();
+                    BindListener();
+
+                    Start();
+                }
+                return false;
+            }
+            return true;
         }
         
         public void Stop()
         {
             _listener.Close();
-            Console.WriteLine("LISTENER STOPPED");
+            Debug.WriteLine("STOPPED LISTENER");
         }
     }
 }

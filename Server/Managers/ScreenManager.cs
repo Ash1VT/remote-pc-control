@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
@@ -14,25 +15,33 @@ namespace Server.Managers
 {
     public class ScreenManager
     {
-        private bool _isRunning;
+        private bool _isRunning = false;
+        private bool _autoRestart = false;
+
         private DesktopDuplicator _desktopDuplicator = new DesktopDuplicator(0);
 
 
 
-        public delegate Task ScreenHandler(Image screen);
+        public delegate Task<bool> ScreenHandler(Image screen);
 
         public event ScreenHandler? ScreenChanged;
 
 
-
+                                
         public ScreenManager() 
         {
-            _isRunning = false;
+        }
+
+        public ScreenManager(bool autoRestart)
+        {
+            _autoRestart = autoRestart;
         }
 
         public void Start()
         {
             _isRunning = true;
+            Debug.WriteLine("STARTED SCREEN MANAGER");
+
 
             Task.Run(async () =>
             {
@@ -53,9 +62,26 @@ namespace Server.Managers
                     {
                         if (frame.DesktopImage != null)
                         {
-                            Console.WriteLine(frame.UpdatedRegions[0].Location);
-                            ScreenChanged?.Invoke(frame.DesktopImage);
+                            try
+                            {
+                                if (!await ScreenChanged?.Invoke(frame.DesktopImage))
+                                {
+                                    Stop();
 
+                                    if (_autoRestart)
+                                    {
+                                        Start();
+                                    }
+                                }
+                            }
+                            catch
+                            {
+                                Stop();
+                                if (_autoRestart)
+                                {
+                                    Start();
+                                }
+                            }
                         }
 
                     }
@@ -68,6 +94,7 @@ namespace Server.Managers
         public void Stop()
         {
             _isRunning = false;
+            Debug.WriteLine("STOPPED SCREEN MANAGER");
         }
     }
 }

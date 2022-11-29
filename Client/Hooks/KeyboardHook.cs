@@ -13,9 +13,9 @@ namespace Client {
 		/// <summary>
 		/// defines the callback type for the hook
 		/// </summary>
-		public delegate int keyboardHookProc(int code, int wParam, ref keyboardHookStruct lParam);
+		public delegate int KeyboardHookProc(int code, int wParam, ref KeyboardHookStruct lParam);
 
-		public struct keyboardHookStruct {
+		public struct KeyboardHookStruct {
 			public int vkCode;
 			public int scanCode;
 			public int flags;
@@ -34,8 +34,8 @@ namespace Client {
 		/// <summary>
 		/// Handle to the hook, need this to unhook and call the next hook
 		/// </summary>
-		IntPtr hhook = IntPtr.Zero;
-		private static keyboardHookProc callback;
+		private IntPtr _hhook = IntPtr.Zero;
+		private static KeyboardHookProc _callback;
 		#endregion
 
 		#region Events
@@ -54,7 +54,7 @@ namespace Client {
 		/// Initializes a new instance of the <see cref="KeyboardHook"/> class and installs the keyboard hook.
 		/// </summary>
 		public KeyboardHook() {
-			hook();
+			Hook();
 		}
 
 		/// <summary>
@@ -62,7 +62,7 @@ namespace Client {
 		/// <see cref="KeyboardHook"/> is reclaimed by garbage collection and uninstalls the keyboard hook.
 		/// </summary>
 		~KeyboardHook() {
-			unhook();
+			Unhook();
 		}
 		#endregion
 
@@ -70,12 +70,12 @@ namespace Client {
 		/// <summary>
 		/// Installs the global hook
 		/// </summary>
-		public void hook() {
+		public void Hook() {
 			try
 			{
-				callback = new keyboardHookProc(hookProc);
+				_callback = new KeyboardHookProc(HookProc);
 				// IntPtr hInstance = LoadLibrary("User32");
-				hhook = SetWindowsHookEx(WH_KEYBOARD_LL, callback, IntPtr.Zero, 0);
+				_hhook = SetWindowsHookEx(WH_KEYBOARD_LL, _callback, IntPtr.Zero, 0);
 			}
 			catch
 			{
@@ -86,8 +86,8 @@ namespace Client {
 		/// <summary>
 		/// Uninstalls the global hook
 		/// </summary>
-		public void unhook() {
-			UnhookWindowsHookEx(hhook);
+		public void Unhook() {
+			UnhookWindowsHookEx(_hhook);
 		}
 
 		/// <summary>
@@ -97,9 +97,7 @@ namespace Client {
 		/// <param name="wParam">The event type</param>
 		/// <param name="lParam">The keyhook event information</param>
 		/// <returns></returns>
-		public int hookProc(int code, int wParam, ref keyboardHookStruct lParam) {
-			// try
-			// {
+		public int HookProc(int code, int wParam, ref KeyboardHookStruct lParam) {
 				if (code >= 0)
 				{
 					Keys key = (Keys)lParam.vkCode;
@@ -116,13 +114,7 @@ namespace Client {
 					if (kea.Handled)
 						return 1;
 				}
-			// }
-			// catch
-			// {
-			// 	return 1;
-			// }
 			return 1;
-			// return CallNextHookEx(hhook, code, wParam, ref lParam);
 		}
 		#endregion
 
@@ -136,10 +128,7 @@ namespace Client {
 		/// <param name="threadId">The thread you want to attach the event to, can be null</param>
 		/// <returns>a handle to the desired hook</returns>
 		[DllImport("user32.dll")]
-		static extern IntPtr SetWindowsHookEx(int idHook, keyboardHookProc callback, IntPtr hInstance, uint threadId);
-
-		[DllImport("user32.dll")]
-		static extern int CallNextHookEx(IntPtr idHook, int nCode, int wParam, ref keyboardHookStruct lParam);
+		static extern IntPtr SetWindowsHookEx(int idHook, KeyboardHookProc callback, IntPtr hInstance, uint threadId);
 
 		/// <summary>
 		/// Unhooks the windows hook.
@@ -149,13 +138,6 @@ namespace Client {
 		[DllImport("user32.dll")]
 		static extern bool UnhookWindowsHookEx(IntPtr hInstance);
 
-		/// <summary>
-		/// Loads the library.
-		/// </summary>
-		/// <param name="lpFileName">Name of the library</param>
-		/// <returns>A handle to the library</returns>
-		[DllImport("kernel32.dll")]
-		static extern IntPtr LoadLibrary(string lpFileName);
 		#endregion
 	}
 }

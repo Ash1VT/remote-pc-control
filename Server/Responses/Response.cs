@@ -14,8 +14,10 @@ namespace Server.Responses
 
         public virtual JObject ToJson()
         {
-            JObject jObject = new JObject();
-            jObject.Add("Type", GetResponseType());
+            JObject jObject = new JObject
+            {
+                { "Type", GetResponseType() }
+            };
             return jObject;
         }
     }

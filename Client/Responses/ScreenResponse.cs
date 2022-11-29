@@ -37,7 +37,7 @@ namespace Client.Responses
         }
         public override void Execute()
         {
-            ScreenManager.ChangeScreen(_screen);
+            ScreenChanger.ChangeScreen(_screen);
         }
 
     }

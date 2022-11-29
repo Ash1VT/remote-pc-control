@@ -15,18 +15,18 @@ namespace Client
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static async Task Main()
+        static void Main()
         {
             try
             {
-                Client client = new Client();
-                await client.Connect("192.168.0.103", 13000);
+                Client client = new Client(230000, 200);
+                client.Connect("192.168.0.103", 13000);
             
                 client.StartAcceptResponses();
             
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
-                Application.Run(new Form1(client));
+                Application.Run(new MainForm(client));
             }
             catch
             {

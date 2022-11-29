@@ -16,7 +16,6 @@ namespace Server
                 case "KeyboardButtonDownRequest": return new KeyboardButtonDownRequest(jObject);
                 case "KeyboardButtonUpRequest": return new KeyboardButtonUpRequest(jObject);
                 case "MouseCoordinatesRequest": return new MouseCoordinatesRequest(jObject);
-                case "Test": return new TestRequest(jObject);
                 default: return null;
             }
 

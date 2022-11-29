@@ -26,14 +26,12 @@ namespace Server.Requests
             if(_button == "Left")
             {
                 MouseApi.Send(_x, _y, Input.MOUSEEVENTF.LEFTDOWN);
-                //User32.mouse_event(User32.MouseEventFlags.ABSOLUTE | User32.MouseEventFlags.LEFTDOWN, _x, _y, 0, UIntPtr.Zero);
                 return;
             }
             
             if(_button == "Right")
             {
                 MouseApi.Send(_x, _y, Input.MOUSEEVENTF.RIGHTDOWN);
-                //User32.mouse_event(User32.MouseEventFlags.ABSOLUTEx | User32.MouseEventFlags.RIGHTDOWN, _x, _y, 0, UIntPtr.Zero);
                 return;
             }
 

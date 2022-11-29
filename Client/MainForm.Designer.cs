@@ -1,6 +1,6 @@
 ﻿namespace Client
 {
-    partial class Form1
+    partial class MainForm
     {
         /// <summary>
         /// Required designer variable.
@@ -35,26 +35,29 @@
             // 
             // screenPictureBox
             // 
-            this.screenPictureBox.Location = new System.Drawing.Point(5, 6);
-            this.screenPictureBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.screenPictureBox.Location = new System.Drawing.Point(6, 8);
             this.screenPictureBox.Name = "screenPictureBox";
-            this.screenPictureBox.Size = new System.Drawing.Size(1395, 782);
+            this.screenPictureBox.Size = new System.Drawing.Size(1569, 977);
             this.screenPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.screenPictureBox.TabIndex = 0;
             this.screenPictureBox.TabStop = false;
             // 
-            // Form1
+            // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1415, 800);
+            this.ClientSize = new System.Drawing.Size(1592, 1000);
             this.Controls.Add(this.screenPictureBox);
-            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.Name = "Form1";
-            this.Text = "Form1";
+            this.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
+            this.Name = "MainForm";
+            this.Text = "Screen sharing";
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.screenPictureBox)).EndInit();
             this.ResumeLayout(false);
+
         }
 
         private System.Windows.Forms.PictureBox screenPictureBox;

@@ -26,7 +26,7 @@ namespace Server.Requests
 
         public override Response GetResponse()
         {
-            throw new NotImplementedException();
+            return null;
         }
     }
 }
