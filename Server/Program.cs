@@ -23,7 +23,7 @@ namespace Server
         public static void Main(string[] args)
         {
 
-            _server = new Server("192.168.0.103", 13000, 200, 230000, true);
+            _server = new Server("192.168.0.103", 13000, 200, 300000, true);
             _server.Start();
             
             ScreenManager screenManager = new ScreenManager(true);
