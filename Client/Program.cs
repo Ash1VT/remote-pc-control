@@ -17,21 +17,11 @@ namespace Client
         [STAThread]
         static void Main()
         {
-            try
-            {
-                Client client = new Client(230000, 200);
-                client.Connect("192.168.0.103", 13000);
-            
-                client.StartAcceptResponses();
-            
-                Application.EnableVisualStyles();
-                Application.SetCompatibleTextRenderingDefault(false);
-                Application.Run(new MainForm(client));
-            }
-            catch
-            {
-                Console.WriteLine("error");
-            }
+            Client client = new Client(300000, 200);
+        
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new ConnectingForm(client));
         }
     }
 }

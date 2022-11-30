@@ -56,16 +56,19 @@ namespace Client
         public void StartAcceptResponses()
         {
             Task.Run(async () => {
-                ArraySegment<byte> answerData = new ArraySegment<byte>(new byte[_incomingResponseBytesCount]);
-                var res = await _server.ReceiveAsync(answerData, SocketFlags.None);
-                _ = Task.Run(() => {
-                    string answer = System.Text.Encoding.Default.GetString(answerData.Array);
+                while (_server.Connected)
+                {
+                    ArraySegment<byte> answerData = new ArraySegment<byte>(new byte[_incomingResponseBytesCount]);
+                    var res = await _server.ReceiveAsync(answerData, SocketFlags.None);
+                    _ = Task.Run(() => {
+                        string answer = System.Text.Encoding.Default.GetString(answerData.Array);
 
-                    JObject jObject = JObject.Parse(answer);
+                        JObject jObject = JObject.Parse(answer);
 
-                    Response response = ResponseIdentifier.GetResponse(jObject);
-                    response.Execute();
-                });
+                        Response response = ResponseIdentifier.GetResponse(jObject);
+                        response.Execute();
+                    });   
+                }
             });
         }
 

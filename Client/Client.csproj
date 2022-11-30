@@ -102,6 +102,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConnectingForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ConnectingForm.Designer.cs">
+      <DependentUpon>ConnectingForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Hooks\KeyboardHook.cs" />
     <Compile Include="Requests\KeyboardButtonDownRequest.cs" />
     <Compile Include="Requests\KeyboardButtonUpRequest.cs" />
@@ -124,6 +130,9 @@
     <Compile Include="Responses\ScreenResponse.cs" />
     <Compile Include="Data.cs" />
     <Compile Include="ScreenChanger.cs" />
+    <EmbeddedResource Include="ConnectingForm.resx">
+      <DependentUpon>ConnectingForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>

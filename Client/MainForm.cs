@@ -29,6 +29,7 @@ namespace Client
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            _client.StartAcceptResponses();
             this.KeyPreview = true;
             screenPictureBox.MouseEnter += screenPictureBox_MouseEnter;
             screenPictureBox.MouseLeave += screenPictureBox_MouseLeave;
@@ -50,7 +51,6 @@ namespace Client
             if (ActiveControl != screenPictureBox)
                 return;
             
-            // Console.WriteLine($"Down {e.KeyValue}");
             e.Handled = true;
             KeyboardButtonDownRequest keyboardButtonDownRequest = new KeyboardButtonDownRequest(e.KeyValue);
             _client.SendRequest(keyboardButtonDownRequest);
