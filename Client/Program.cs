@@ -17,8 +17,8 @@ namespace Client
         [STAThread]
         static void Main()
         {
-            Client client = new Client(300000, 200);
-        
+            Client client = new Client(250000, 200);
+            
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new ConnectingForm(client));

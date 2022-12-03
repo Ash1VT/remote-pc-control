@@ -54,7 +54,7 @@ partial class ConnectingForm
         this.connectButton.Font = new System.Drawing.Font("Verdana", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
         this.connectButton.Location = new System.Drawing.Point(12, 146);
         this.connectButton.Name = "connectButton";
-        this.connectButton.Size = new System.Drawing.Size(438, 68);
+        this.connectButton.Size = new System.Drawing.Size(453, 68);
         this.connectButton.TabIndex = 0;
         this.connectButton.Text = "Connect";
         this.connectButton.UseVisualStyleBackColor = true;
@@ -72,7 +72,7 @@ partial class ConnectingForm
         // label2
         // 
         this.label2.Font = new System.Drawing.Font("Verdana", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-        this.label2.Location = new System.Drawing.Point(148, 29);
+        this.label2.Location = new System.Drawing.Point(159, 29);
         this.label2.Name = "label2";
         this.label2.Size = new System.Drawing.Size(22, 32);
         this.label2.TabIndex = 5;
@@ -81,7 +81,7 @@ partial class ConnectingForm
         // label3
         // 
         this.label3.Font = new System.Drawing.Font("Verdana", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-        this.label3.Location = new System.Drawing.Point(252, 29);
+        this.label3.Location = new System.Drawing.Point(263, 29);
         this.label3.Name = "label3";
         this.label3.Size = new System.Drawing.Size(22, 32);
         this.label3.TabIndex = 6;
@@ -90,7 +90,7 @@ partial class ConnectingForm
         // label4
         // 
         this.label4.Font = new System.Drawing.Font("Verdana", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-        this.label4.Location = new System.Drawing.Point(356, 29);
+        this.label4.Location = new System.Drawing.Point(367, 29);
         this.label4.Name = "label4";
         this.label4.Size = new System.Drawing.Size(22, 32);
         this.label4.TabIndex = 7;
@@ -108,7 +108,7 @@ partial class ConnectingForm
         // firstIpBlock
         // 
         this.firstIpBlock.Font = new System.Drawing.Font("Verdana", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-        this.firstIpBlock.Location = new System.Drawing.Point(73, 27);
+        this.firstIpBlock.Location = new System.Drawing.Point(84, 27);
         this.firstIpBlock.Maximum = new decimal(new int[] { 255, 0, 0, 0 });
         this.firstIpBlock.Name = "firstIpBlock";
         this.firstIpBlock.Size = new System.Drawing.Size(70, 32);
@@ -117,7 +117,7 @@ partial class ConnectingForm
         // secondIpBlock
         // 
         this.secondIpBlock.Font = new System.Drawing.Font("Verdana", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-        this.secondIpBlock.Location = new System.Drawing.Point(176, 27);
+        this.secondIpBlock.Location = new System.Drawing.Point(187, 27);
         this.secondIpBlock.Maximum = new decimal(new int[] { 255, 0, 0, 0 });
         this.secondIpBlock.Name = "secondIpBlock";
         this.secondIpBlock.Size = new System.Drawing.Size(70, 32);
@@ -126,7 +126,7 @@ partial class ConnectingForm
         // thirdIpBlock
         // 
         this.thirdIpBlock.Font = new System.Drawing.Font("Verdana", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-        this.thirdIpBlock.Location = new System.Drawing.Point(280, 27);
+        this.thirdIpBlock.Location = new System.Drawing.Point(291, 27);
         this.thirdIpBlock.Maximum = new decimal(new int[] { 255, 0, 0, 0 });
         this.thirdIpBlock.Name = "thirdIpBlock";
         this.thirdIpBlock.Size = new System.Drawing.Size(70, 32);
@@ -135,7 +135,7 @@ partial class ConnectingForm
         // fourthIpBlock
         // 
         this.fourthIpBlock.Font = new System.Drawing.Font("Verdana", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-        this.fourthIpBlock.Location = new System.Drawing.Point(384, 27);
+        this.fourthIpBlock.Location = new System.Drawing.Point(395, 27);
         this.fourthIpBlock.Maximum = new decimal(new int[] { 255, 0, 0, 0 });
         this.fourthIpBlock.Name = "fourthIpBlock";
         this.fourthIpBlock.Size = new System.Drawing.Size(70, 32);
@@ -154,7 +154,7 @@ partial class ConnectingForm
         // 
         this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
         this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-        this.ClientSize = new System.Drawing.Size(462, 245);
+        this.ClientSize = new System.Drawing.Size(479, 236);
         this.Controls.Add(this.port);
         this.Controls.Add(this.fourthIpBlock);
         this.Controls.Add(this.thirdIpBlock);

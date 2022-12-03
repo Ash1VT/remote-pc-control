@@ -14,18 +14,24 @@ namespace Client
 {
     public class Client
     {
-        private Socket _server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        private Socket _client;
         private int _incomingResponseBytesCount;
         private int _outgoingRequestBytesCount;
         public Client(int incomingResponseBytesCount, int outgoingRequestBytesCount)
         {
+            InitClient();
             _incomingResponseBytesCount = incomingResponseBytesCount;
             _outgoingRequestBytesCount = outgoingRequestBytesCount;
         }
 
+        private void InitClient()
+        {
+            _client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        }
+        
         public void Connect(string serverAddress, int serverPort)
         {
-            _server.Connect(serverAddress, serverPort);
+            _client.Connect(serverAddress, serverPort);
             Console.WriteLine($"CONNECTED TO {serverAddress}:{serverPort}");
         }
     
@@ -42,7 +48,7 @@ namespace Client
                 Buffer.BlockCopy(System.Text.Encoding.Default.GetBytes(stringRequest), 0, bytes, 0, stringRequest.Length);
                 ArraySegment<byte> sendingBytes = new ArraySegment<byte>(bytes);
 
-                int sent = await _server.SendAsync(sendingBytes, SocketFlags.None);
+                int sent = await _client.SendAsync(sendingBytes, SocketFlags.None);
                 return true;
             }
             catch (System.IO.IOException e)
@@ -55,13 +61,13 @@ namespace Client
 
         public void StartAcceptResponses()
         {
-            Task.Run(async () => {
-                while (_server.Connected)
+            Task.Run(() => {
+                while (_client.Connected)
                 {
-                    ArraySegment<byte> answerData = new ArraySegment<byte>(new byte[_incomingResponseBytesCount]);
-                    var res = await _server.ReceiveAsync(answerData, SocketFlags.None);
+                    byte[] answerData = new byte[_incomingResponseBytesCount];
+                    var res = _client.Receive(answerData, 0, answerData.Length, SocketFlags.None);
                     _ = Task.Run(() => {
-                        string answer = System.Text.Encoding.Default.GetString(answerData.Array);
+                        string answer = System.Text.Encoding.Default.GetString(answerData);
 
                         JObject jObject = JObject.Parse(answer);
 
@@ -74,7 +80,8 @@ namespace Client
 
         public void Disconnect()
         {
-            _server.Close();
+            _client.Close();
+            InitClient();
             Console.WriteLine("DISCONNECTING");
         }
         

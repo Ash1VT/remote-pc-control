@@ -39,10 +39,10 @@ public partial class ConnectingForm : Form
             _client.Connect(serverAddress, serverPort);
             
             MainForm mainForm = new MainForm(_client);
-            mainForm.Show();
-            
-            
-            
+            this.Visible = false;
+            mainForm.ShowDialog();
+            this.Visible = true;
+
         }
         catch
         {
