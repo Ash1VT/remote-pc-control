@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -9,16 +10,13 @@ namespace Server.Responses
 {
     public class ScreenResponse : Response
     {
-
         private byte[] _screen;
         
         public ScreenResponse(Image screen) : base()
         {
-            byte[] initialBytes = ImageUtils.ImageToByteArray(ImageUtils.CompressImage(screen, 1200, 1000, 100));
-            
-            byte[] decodedBytes = Lz4Net.Lz4.CompressBytes(initialBytes, Lz4Net.Lz4Mode.Fast);
-            //Console.WriteLine(initialBytes.Length);
+            byte[] initialBytes = ImageUtils.ImageToByteArray(ImageUtils.CompressImage(screen, 1000, 500, 80));
 
+            byte[] decodedBytes = Lz4Net.Lz4.CompressBytes(initialBytes, Lz4Net.Lz4Mode.Fast);
             _screen = decodedBytes;
         }
         

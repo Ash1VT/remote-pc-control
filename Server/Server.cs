@@ -16,35 +16,31 @@ using System.Windows.Forms;
 using Newtonsoft.Json.Linq;
 using Server.Requests;
 using Server.Responses;
+using Timer = System.Timers.Timer;
 
 namespace Server
 {
     public class Server
     {
         private Socket _listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        private Socket _client = null;
+        private Socket _client;
 
         private EndPoint _serverAdress;
 
         private bool _autoRestart = false;
-        private int _incomingRequestBytesCount;
-        private int _outgoingResponseBytesCount;
 
-        public Server(string serverAddress, int serverPort, int incomingRequestBytesCount, int outgoingResponseBytesCount)
+        public Server(string serverAddress, int serverPort)
         {
             _serverAdress = new IPEndPoint(IPAddress.Parse(serverAddress), serverPort);
-            _incomingRequestBytesCount = incomingRequestBytesCount;
-            _outgoingResponseBytesCount = outgoingResponseBytesCount;
 
             InitListener();
             BindListener();
         }
 
-        public Server(string serverAddress, int serverPort, int incomingRequestBytesCount, int outcomingResponseBytesCount, bool autoRestart)
+        public Server(string serverAddress, int serverPort, bool autoRestart)
         {
+         
             _serverAdress = new IPEndPoint(IPAddress.Parse(serverAddress), serverPort);
-            _incomingRequestBytesCount= incomingRequestBytesCount;
-            _outgoingResponseBytesCount = outcomingResponseBytesCount;
             _autoRestart = autoRestart;
 
             InitListener();
@@ -90,29 +86,7 @@ namespace Server
                 return;
             }
 
-            Task.Run(async () =>
-            {
-                while (_client.Connected)
-                {
-                    ArraySegment<byte> incomingData = new ArraySegment<byte>(new byte[_incomingRequestBytesCount]);
-                    var res = await _client.ReceiveAsync(incomingData, SocketFlags.None);
-
-                    _ = Task.Run(() =>
-                    {
-                        string answer = System.Text.Encoding.Default.GetString(incomingData.Array);
-
-                        JObject jObject = JObject.Parse(answer);
-                        
-                        Request request = RequestIdentifier.GetRequest(jObject);
-                        request.Execute();
-
-                        Response response = request.GetResponse();
-                        SendResponse(response);
-                    });
-                }
-            });
-            Debug.WriteLine("STARTED ACCEPTING REQUESTS FROM CLIENT");
-
+            Task.Run(Handle);
         }
 
 
@@ -124,11 +98,22 @@ namespace Server
 
             try
             {
+                
                 string stringResponse = response.ToJson().ToString();
-                byte[] bytes = new byte[_outgoingResponseBytesCount];
-                Buffer.BlockCopy(System.Text.Encoding.Default.GetBytes(stringResponse), 0, bytes, 0, stringResponse.Length);
-                ArraySegment<byte> sendingBytes = new ArraySegment<byte>(bytes);
-                int sent = await _client.SendAsync(sendingBytes, SocketFlags.None);
+                
+                int sendingBytesCount = stringResponse.Length;
+
+                byte[] temp = new byte[6];
+                byte[] bytes = BitConverter.GetBytes(sendingBytesCount);
+                
+                Buffer.BlockCopy(bytes, 0, temp, 0, bytes.Length);
+                
+                ArraySegment<byte> sendingBytesCountBytes =
+                    new ArraySegment<byte>(temp);
+                
+                await _client.SendAsync(sendingBytesCountBytes, SocketFlags.None);
+                ArraySegment<byte> sendingBytes = new ArraySegment<byte>(System.Text.Encoding.Default.GetBytes(stringResponse));
+                await _client.SendAsync(sendingBytes, SocketFlags.None);
             }
             catch
             {
@@ -146,7 +131,40 @@ namespace Server
             }
             return true;
         }
-        
+
+        private async Task Handle()
+        {
+            int requestBytesCount = BitConverter.ToInt32(GetRequestBytes(6), 0);
+
+            byte[] incomingData = GetRequestBytes(requestBytesCount);
+            
+            Task.Run(Handle);
+            
+            string answer = System.Text.Encoding.Default.GetString(incomingData);
+
+            JObject jObject = JObject.Parse(answer);
+                        
+            Request request = RequestIdentifier.GetRequest(jObject);
+            request.Execute();
+
+            Response response = request.GetResponse();
+            await SendResponse(response);
+        }
+        private byte[] GetRequestBytes(int requestBytesCount)
+        {
+            int mustHandle = requestBytesCount;
+            int alreadyHandle = 0;
+            
+            byte[] answerData = new byte[requestBytesCount];
+
+            while (alreadyHandle < mustHandle)
+            {
+                int receivedBytes = _client.Receive(answerData, alreadyHandle, mustHandle - alreadyHandle, SocketFlags.None);
+                alreadyHandle += receivedBytes;
+            }
+
+            return answerData;
+        }
         public void Stop()
         {
             _listener.Close();

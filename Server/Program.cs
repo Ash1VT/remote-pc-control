@@ -13,9 +13,6 @@ using Server.Responses;
 
 namespace Server
 {
-    
-   
-
     public class Program
     {
 
@@ -23,7 +20,8 @@ namespace Server
         public static void Main(string[] args)
         {
 
-            _server = new Server("192.168.0.103", 13000, 200, 300000, true);
+            ConfigReader configReader = new ConfigReader("config.ini");
+            _server = new Server(configReader.ServerAddress, configReader.ServerPort, true);
             _server.Start();
             
             ScreenManager screenManager = new ScreenManager(true);
@@ -39,6 +37,5 @@ namespace Server
             return await _server.SendResponse(screenResponse);
         }
 
-  
     }
 }

@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using DesktopDuplication;
+using Timer = System.Timers.Timer;
 
 
 namespace Server.Managers
@@ -18,8 +19,8 @@ namespace Server.Managers
         private bool _isRunning = false;
         private bool _autoRestart = false;
 
-        private DesktopDuplicator _desktopDuplicator = new DesktopDuplicator(0);
 
+        private DesktopDuplicator _desktopDuplicator = new DesktopDuplicator(0);
 
 
         public delegate Task<bool> ScreenHandler(Image screen);
@@ -41,52 +42,51 @@ namespace Server.Managers
         {
             _isRunning = true;
             Debug.WriteLine("STARTED SCREEN MANAGER");
-
+            
 
             Task.Run(async () =>
-            {
-
-                while (_isRunning)
                 {
-                    DesktopFrame frame = null;
-                    try
+                    while (_isRunning)
                     {
-                        frame = _desktopDuplicator.GetLatestFrame();
-                    }
-                    catch
-                    {
-                        _desktopDuplicator = new DesktopDuplicator(0);
-                    }
-
-                    if (frame != null)
-                    {
-                        if (frame.DesktopImage != null)
+                        DesktopFrame frame = null;
+                        try
                         {
-                            try
+                            frame = _desktopDuplicator.GetLatestFrame();
+                        }
+                        catch
+                        {
+                            _desktopDuplicator = new DesktopDuplicator(0);
+                        }
+                
+                        if (frame != null)
+                        {
+                            if (frame.DesktopImage != null)
                             {
-                                if (!await ScreenChanged?.Invoke(frame.DesktopImage))
+                                try
+                                {
+                                    if (!await ScreenChanged?.Invoke(frame.DesktopImage))
+                                    {
+                                        Stop();
+                                    
+                                        if (_autoRestart)
+                                        {
+                                            Start();
+                                        }
+                                    }
+                                }
+                                catch
                                 {
                                     Stop();
-
                                     if (_autoRestart)
                                     {
                                         Start();
                                     }
                                 }
                             }
-                            catch
-                            {
-                                Stop();
-                                if (_autoRestart)
-                                {
-                                    Start();
-                                }
-                            }
+                        
                         }
-
                     }
-                }
-            });
+                });
             
  
         }

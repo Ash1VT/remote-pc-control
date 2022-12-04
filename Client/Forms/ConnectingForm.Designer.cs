@@ -154,7 +154,7 @@ partial class ConnectingForm
         // 
         this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
         this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-        this.ClientSize = new System.Drawing.Size(479, 236);
+        this.ClientSize = new System.Drawing.Size(486, 236);
         this.Controls.Add(this.port);
         this.Controls.Add(this.fourthIpBlock);
         this.Controls.Add(this.thirdIpBlock);

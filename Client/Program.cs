@@ -1,6 +1,7 @@
 ﻿using Client.Requests;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Threading.Tasks;
@@ -17,7 +18,9 @@ namespace Client
         [STAThread]
         static void Main()
         {
-            Client client = new Client(250000, 200);
+
+            
+            Client client = new Client();
             
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
