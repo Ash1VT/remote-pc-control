@@ -1,12 +1,6 @@
-﻿using Client.Requests;
+﻿using Client.Forms;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Sockets;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using Client;
 
 namespace Client
 {

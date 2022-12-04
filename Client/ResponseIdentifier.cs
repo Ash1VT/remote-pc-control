@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Client.Responses;
+﻿using Client.Responses;
 using Newtonsoft.Json.Linq;
 
 namespace Client
@@ -17,7 +12,6 @@ namespace Client
             switch (responseType)
             {
                 case "ScreenResponse": return new ScreenResponse(jObject);
-                case "MouseCoordinatesResponse": return new MouseCoordinatesResponse(jObject);
                 default: return null;
             }
 

@@ -1,13 +1,4 @@
-﻿using System;
-using System.Drawing;
-using System.Drawing.Imaging;
-
-using System.IO;
-using System.Net;
-using System.Net.Sockets;
-using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
-using Server.DeviceApi;
+﻿using System.Drawing;
 using Server.Managers;
 using Server.Responses;
 

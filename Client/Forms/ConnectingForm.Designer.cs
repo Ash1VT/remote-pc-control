@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace Client;
+namespace Client.Forms;
 
 partial class ConnectingForm
 {

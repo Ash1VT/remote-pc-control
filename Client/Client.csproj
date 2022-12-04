@@ -121,14 +121,12 @@
     <Compile Include="Requests\MouseButtonDownRequest.cs" />
     <Compile Include="Requests\MouseButtonUpRequest.cs" />
     <Compile Include="ResponseIdentifier.cs" />
-    <Compile Include="Responses\MouseCoordinatesResponse.cs" />
     <Compile Include="Responses\Response.cs" />
     <Compile Include="Client.cs" />
     <Compile Include="Requests\Request.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Responses\ScreenResponse.cs" />
-    <Compile Include="Data.cs" />
     <Compile Include="ScreenChanger.cs" />
     <EmbeddedResource Include="Forms\ConnectingForm.resx">
       <DependentUpon>ConnectingForm.cs</DependentUpon>

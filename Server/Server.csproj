@@ -130,14 +130,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="x64\lz4X64.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="x86\lz4X86.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\DesktopDuplication\DesktopDuplication.csproj">
       <Project>{222c215b-663f-4bd6-9b3e-8fa99c867b22}</Project>
       <Name>DesktopDuplication</Name>

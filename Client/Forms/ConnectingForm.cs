@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace Client;
+namespace Client.Forms;
 
 public partial class ConnectingForm : Form
 {
@@ -23,14 +23,6 @@ public partial class ConnectingForm : Form
 
     private void connectButton_Click(object sender, EventArgs e)
     {
-        // if (String.IsNullOrWhiteSpace(firstIpBlock.Value) || String.IsNullOrWhiteSpace(secondIpBlockTextBox.Text)
-        //     || String.IsNullOrWhiteSpace(thirdIpBlockTextBox.Text) || String.IsNullOrWhiteSpace(fourthIpBlockTextBox.Text) 
-        //     || String.IsNullOrWhiteSpace(portTextBox.Text))
-        // {
-        //     MessageBox.Show("Some fields are not filled", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        //     return;
-        // }
-
         string serverAddress = $"{firstIpBlock.Value}.{secondIpBlock.Value}.{thirdIpBlock.Value}.{fourthIpBlock.Value}";
         int serverPort = (int)port.Value;
 

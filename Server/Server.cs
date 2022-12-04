@@ -1,22 +1,11 @@
 ﻿using System;
-using System.Collections;
 using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
-using System.Linq;
 using System.Net;
-using System.Net.Mime;
 using System.Net.Sockets;
-using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
-using System.Threading;                   
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using Newtonsoft.Json.Linq;
 using Server.Requests;
 using Server.Responses;
-using Timer = System.Timers.Timer;
 
 namespace Server
 {
@@ -108,12 +97,8 @@ namespace Server
                 
                 Buffer.BlockCopy(bytes, 0, sendingBytesCountBytes, 0, bytes.Length);
                 
-                //ArraySegment<byte> sendingBytesCountBytes =
-                //    new ArraySegment<byte>(temp);
-                
                 _client.Send(sendingBytesCountBytes, SocketFlags.None);
                 byte[] sendingBytes = System.Text.Encoding.Default.GetBytes(stringResponse);
-                //ArraySegment<byte> sendingBytes = new ArraySegment<byte>(System.Text.Encoding.Default.GetBytes(stringResponse));
                 _client.Send(sendingBytes, SocketFlags.None);
                 return true;
 

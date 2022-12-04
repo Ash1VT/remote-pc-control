@@ -1,31 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Timers;
 using System.Windows.Forms;
+using Client.Hooks;
 using Client.Requests;
-using Newtonsoft.Json.Linq;
-using Task = System.Threading.Tasks.Task;
 
-namespace Client
+namespace Client.Forms
 {
     public partial class MainForm : Form
     {
         private Client _client;
         private KeyboardHook _keyboardHook;
-        private Semaphore _semaphore;
+
+        private double _pictureBoxToScreenRelationX { get; set; }
+        private double _pictureBoxToScreenRelationY { get; set; }
         public MainForm(Client client)
         {
             InitializeComponent();
             _client = client;
-            _semaphore = new Semaphore(1, 1);
             _keyboardHook = new KeyboardHook();
             _keyboardHook.Unhook();
         }
@@ -44,8 +35,8 @@ namespace Client
 
             _keyboardHook.KeyDown += hook_KeyDown;
             _keyboardHook.KeyUp += hook_KeyUp;
-            Data.XCoefficient = 1920.0 / screenPictureBox.Width;
-            Data.YCoefficient = 1080.0 / screenPictureBox.Height;
+            _pictureBoxToScreenRelationX = 1920.0 / screenPictureBox.Width;
+            _pictureBoxToScreenRelationY = 1080.0 / screenPictureBox.Height;
             ScreenChanger.ScreenChanged += screen_Changed;
             
         }
@@ -75,22 +66,22 @@ namespace Client
         
         private void screenPictureBox_MouseDown(object sender, MouseEventArgs e)
         {
-            MouseDownRequest mouseDownRequest = new MouseDownRequest((int)(e.X * Data.XCoefficient),
-                (int)(e.Y * Data.YCoefficient), e.Button.ToString());
+            MouseDownRequest mouseDownRequest = new MouseDownRequest((int)(e.X * _pictureBoxToScreenRelationX),
+                (int)(e.Y * _pictureBoxToScreenRelationY), e.Button.ToString());
             _client.SendRequest(mouseDownRequest);
         }
         
         private void screenPictureBox_MouseUp(object sender, MouseEventArgs e)
         {
-            MouseUpRequest mouseUpRequest = new MouseUpRequest((int)(e.X * Data.XCoefficient),
-                (int)(e.Y * Data.YCoefficient), e.Button.ToString());
+            MouseUpRequest mouseUpRequest = new MouseUpRequest((int)(e.X * _pictureBoxToScreenRelationX),
+                (int)(e.Y * _pictureBoxToScreenRelationY), e.Button.ToString());
             _client.SendRequest(mouseUpRequest);
         }
         
         
         private void screenPictureBox_MouseMove(object sender, MouseEventArgs e)
         {
-            MouseCoordinatesRequest mouseCoordinatesRequest = new MouseCoordinatesRequest((int)(e.X * Data.XCoefficient), (int)(e.Y * Data.YCoefficient));
+            MouseCoordinatesRequest mouseCoordinatesRequest = new MouseCoordinatesRequest((int)(e.X * _pictureBoxToScreenRelationX), (int)(e.Y * _pictureBoxToScreenRelationY));
             _client.SendRequest(mouseCoordinatesRequest);
         }
 

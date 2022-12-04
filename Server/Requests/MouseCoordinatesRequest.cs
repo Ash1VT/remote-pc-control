@@ -1,5 +1,4 @@
-﻿using System.Windows.Forms;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using Server.Responses;
 
 namespace Server.Requests
