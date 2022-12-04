@@ -4,6 +4,7 @@ using System.IO;
 using System.Net.Sockets;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using Client.Requests;
@@ -31,9 +32,9 @@ namespace Client
             _client.Connect(serverAddress, serverPort);
             Console.WriteLine($"CONNECTED TO {serverAddress}:{serverPort}");
         }
-    
 
-        public async Task<bool> SendRequest(Request request)
+
+        public bool SendRequest(Request request)
         {
             try
             {
@@ -41,30 +42,22 @@ namespace Client
                     return false;
                 
                 string stringRequest = request.ToJson().ToString();
-                
                 int sendingBytesCount = stringRequest.Length;
+                byte[] sendingBytesCountBytes = new byte[6];
 
-                byte[] temp = new byte[6];
+                // byte[] temp = new byte[6];
                 byte[] bytes = BitConverter.GetBytes(sendingBytesCount);
-                Buffer.BlockCopy(bytes, 0, temp, 0, bytes.Length);
+                Buffer.BlockCopy(bytes, 0, sendingBytesCountBytes, 0, bytes.Length);
                 
-                ArraySegment<byte> sendingBytesCountBytes =
-                    new ArraySegment<byte>(temp);
-                
-                await _client.SendAsync(sendingBytesCountBytes, SocketFlags.None);
+                // ArraySegment<byte> sendingBytesCountBytes =
+                //     new ArraySegment<byte>(temp);
 
-                // byte[] bytes = new byte[_outgoingResponseBytesCount];
-                // Buffer.BlockCopy(System.Text.Encoding.Default.GetBytes(stringResponse), 0, bytes, 0, stringResponse.Length);
-                ArraySegment<byte> sendingBytes = new ArraySegment<byte>(System.Text.Encoding.Default.GetBytes(stringRequest));
-                await _client.SendAsync(sendingBytes, SocketFlags.None);
+                _client.Send(sendingBytesCountBytes, SocketFlags.None);
+                // Console.WriteLine(sent);
+                byte[] sendingBytes = System.Text.Encoding.Default.GetBytes(stringRequest);
+                // ArraySegment<byte> sendingBytes = new ArraySegment<byte>(System.Text.Encoding.Default.GetBytes(stringRequest));
+                _client.Send(sendingBytes, SocketFlags.None);
                 return true;
-                // string stringRequest = request.ToJson().ToString();
-                // byte[] bytes = new byte[_outgoingRequestBytesCount];
-                // Buffer.BlockCopy(System.Text.Encoding.Default.GetBytes(stringRequest), 0, bytes, 0, stringRequest.Length);
-                // ArraySegment<byte> sendingBytes = new ArraySegment<byte>(bytes);
-                //
-                // int sent = await _client.SendAsync(sendingBytes, SocketFlags.None);
-                // return true;
             }
             catch (System.IO.IOException e)
             {
@@ -95,7 +88,7 @@ namespace Client
             // });
         }
 
-        public void Handle()
+        private void Handle()
         {
             
             int responseBytesCount = BitConverter.ToInt32(GetResponseBytes(6), 0);

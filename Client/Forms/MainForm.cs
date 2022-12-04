@@ -6,6 +6,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Forms;
@@ -19,10 +20,12 @@ namespace Client
     {
         private Client _client;
         private KeyboardHook _keyboardHook;
+        private Semaphore _semaphore;
         public MainForm(Client client)
         {
             InitializeComponent();
             _client = client;
+            _semaphore = new Semaphore(1, 1);
             _keyboardHook = new KeyboardHook();
             _keyboardHook.Unhook();
         }
