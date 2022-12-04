@@ -23,7 +23,7 @@ namespace Server.Managers
         private DesktopDuplicator _desktopDuplicator = new DesktopDuplicator(0);
 
 
-        public delegate Task<bool> ScreenHandler(Image screen);
+        public delegate bool ScreenHandler(Image screen);
 
         public event ScreenHandler? ScreenChanged;
 
@@ -64,7 +64,7 @@ namespace Server.Managers
                             {
                                 try
                                 {
-                                    if (!await ScreenChanged?.Invoke(frame.DesktopImage))
+                                    if (!(bool)ScreenChanged?.Invoke(frame.DesktopImage))
                                     {
                                         Stop();
                                     

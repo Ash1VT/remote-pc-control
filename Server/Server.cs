@@ -91,7 +91,7 @@ namespace Server
 
 
 
-        public async Task<bool> SendResponse(Response response)
+        public bool SendResponse(Response response)
         {
             if (response == null)
                 return false;
@@ -103,17 +103,20 @@ namespace Server
                 
                 int sendingBytesCount = stringResponse.Length;
 
-                byte[] temp = new byte[6];
+                byte[] sendingBytesCountBytes = new byte[6];
                 byte[] bytes = BitConverter.GetBytes(sendingBytesCount);
                 
-                Buffer.BlockCopy(bytes, 0, temp, 0, bytes.Length);
+                Buffer.BlockCopy(bytes, 0, sendingBytesCountBytes, 0, bytes.Length);
                 
-                ArraySegment<byte> sendingBytesCountBytes =
-                    new ArraySegment<byte>(temp);
+                //ArraySegment<byte> sendingBytesCountBytes =
+                //    new ArraySegment<byte>(temp);
                 
-                await _client.SendAsync(sendingBytesCountBytes, SocketFlags.None);
-                ArraySegment<byte> sendingBytes = new ArraySegment<byte>(System.Text.Encoding.Default.GetBytes(stringResponse));
-                await _client.SendAsync(sendingBytes, SocketFlags.None);
+                _client.Send(sendingBytesCountBytes, SocketFlags.None);
+                byte[] sendingBytes = System.Text.Encoding.Default.GetBytes(stringResponse);
+                //ArraySegment<byte> sendingBytes = new ArraySegment<byte>(System.Text.Encoding.Default.GetBytes(stringResponse));
+                _client.Send(sendingBytes, SocketFlags.None);
+                return true;
+
             }
             catch
             {
@@ -129,10 +132,9 @@ namespace Server
                 }
                 return false;
             }
-            return true;
         }
 
-        private async Task Handle()
+        private void Handle()
         {
             int requestBytesCount = BitConverter.ToInt32(GetRequestBytes(6), 0);
 
@@ -141,14 +143,13 @@ namespace Server
             Task.Run(Handle);
             
             string answer = System.Text.Encoding.Default.GetString(incomingData);
-
             JObject jObject = JObject.Parse(answer);
                         
             Request request = RequestIdentifier.GetRequest(jObject);
             request.Execute();
 
             Response response = request.GetResponse();
-            await SendResponse(response);
+            SendResponse(response);
         }
         private byte[] GetRequestBytes(int requestBytesCount)
         {
