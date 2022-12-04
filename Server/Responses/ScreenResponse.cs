@@ -14,7 +14,7 @@ namespace Server.Responses
         
         public ScreenResponse(Image screen) : base()
         {
-            byte[] initialBytes = ImageUtils.ImageToByteArray(ImageUtils.CompressImage(screen, 1000, 500, 80));
+            byte[] initialBytes = ImageUtils.ImageToByteArray(ImageUtils.CompressImage(screen, 1300, 800, 100));
 
             byte[] decodedBytes = Lz4Net.Lz4.CompressBytes(initialBytes, Lz4Net.Lz4Mode.Fast);
             _screen = decodedBytes;

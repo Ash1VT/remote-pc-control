@@ -31,10 +31,10 @@ namespace Server
             while (true) { }
         }   
 
-        private static async Task<bool> Manager_ScreenChanged(Image screen)
+        private static bool Manager_ScreenChanged(Image screen)
         {
             ScreenResponse screenResponse = new ScreenResponse(screen);
-            return await _server.SendResponse(screenResponse);
+            return _server.SendResponse(screenResponse);
         }
 
     }
